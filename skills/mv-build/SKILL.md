@@ -1,6 +1,6 @@
 ---
 name: mv-build
-description: 메타버스 만들기 4단계 — 템플릿 엔진(three.js + Vite)을 프로젝트에 깔고 world.json·concept.json 대로 실제 3D 월드를 만들어 로컬에서 실행·확인한다. 새 소품 종류, 구역 모양, 상호작용 추가 같은 커스터마이즈도 이 스킬로. "빌드", "실행해 줘", "로컬에서 열어 줘", "소품 추가", "기능 추가" 요청에 사용.
+description: 딸각verse 4단계 — 템플릿 엔진(three.js + Vite)을 프로젝트에 깔고 world.json·concept.json 대로 실제 3D 월드를 만들어 로컬에서 실행·확인한다. 새 소품 종류, 구역 모양, 상호작용 추가 같은 커스터마이즈도 이 스킬로. "빌드", "실행해 줘", "로컬에서 열어 줘", "소품 추가", "기능 추가" / "build my world", "run it locally", "add a prop" 요청에 사용.
 ---
 
 # 4단계 · 월드 만들기 (mv-build)
@@ -17,6 +17,7 @@ src/net.js           Supabase Realtime 멀티플레이 (설정 없으면 혼자 
 world/world.json     세계관·구역 (mv-worldview 가 씀)
 world/concept.json   색·빛·분위기 (mv-concept 가 씀)
 wrangler.jsonc       배포 설정 (mv-deploy)
+tools/secret-scan.mjs  비밀 정보 검사기 (.githooks 의 pre-commit·pre-push, npm run deploy 가 사용)
 ```
 조작: WASD/방향키·Shift 달리기·Space 점프·드래그 시점·휠/핀치 줌·바닥 탭으로 이동·빛나는 포털로 구역 이동. 휴대폰은 조이스틱.
 
@@ -28,14 +29,15 @@ wrangler.jsonc       배포 설정 (mv-deploy)
    ```
    (world 폴더가 아예 없으면 템플릿 예시 "별빛 정원"이 들어가므로, 2·3단계를 건너뛴 사람에게는 예시로 먼저 보여 주고 나중에 바꾸자고 안내)
 2. `package.json` 의 `name`, `wrangler.jsonc` 의 `name` 을 `world.slug` 로 바꾼다.
-3. `npm install` → `npm run dev` (기본 http://localhost:5173, 같은 와이파이 휴대폰은 Network 주소).
-4. **확인** — 가능하면 브라우저 도구로 첫 화면 스크린샷을 찍어 보여 주고, 포털로 다른 구역에 들어가지는지까지 본다. 콘솔 오류가 있으면 고친다. 도구가 없으면 사용자에게 열어 보라고 하고 체크리스트(구역 이름 보임 / 걸어짐 / 포털 이동 / 휴대폰 조이스틱)를 준다.
-5. **다듬기 (요청이 있을 때)** — 자주 하는 것:
+3. git 저장소가 아니면 `git init` (비밀 정보 검사 훅이 걸리도록). 그다음 `npm install` — `prepare` 스크립트가 `.githooks/`(커밋·push 전 비밀 정보 검사)를 켠다. 확인: `git config core.hooksPath` → `.githooks`.
+4. `npm run dev` (기본 http://localhost:5173, 같은 와이파이 휴대폰은 Network 주소).
+5. **확인** — 가능하면 브라우저 도구로 첫 화면 스크린샷을 찍어 보여 주고, 포털로 다른 구역에 들어가지는지까지 본다. 콘솔 오류가 있으면 고친다. 도구가 없으면 사용자에게 열어 보라고 하고 체크리스트(구역 이름 보임 / 걸어짐 / 포털 이동 / 휴대폰 조이스틱)를 준다.
+6. **다듬기 (요청이 있을 때)** — 자주 하는 것:
    - 새 소품: `main.js` 의 `buildProp` switch 에 `case '이름':` 추가 (THREE 기본 도형 조합 + `solid` 에 부딪힘 영역). world.json 에서 그 `kind` 를 쓰면 됨.
    - 구역 모양: `buildZone` (바닥·벽). 계단·다층은 이 템플릿 범위를 넘으니 "고급 확장"으로 따로 설계.
    - 상호작용: 소품에 `text` 를 두고 가까이 가면 버튼을 띄우는 식 (포털 감지 코드 참고).
    - 배경음·효과음: `public/` 에 파일을 두고 `new Audio()` (첫 터치 뒤에 재생).
-   수정 후엔 다시 4번 확인.
+   수정 후엔 다시 5번 확인.
 
 ## 끝나면
 

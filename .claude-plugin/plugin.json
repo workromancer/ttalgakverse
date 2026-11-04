@@ -1,6 +1,6 @@
 {
-  "name": "metaverse-kit",
-  "description": "서버 없이 나만의 브라우저 3D 메타버스를 만드는 단계별 스킬 묶음: 준비 → 세계관 → 컨셉 시안(HTML) → 빌드 → 멀티플레이(Supabase) → 배포(Cloudflare workers.dev). 중간에 막혀도 진단하고 이어서 진행.",
+  "name": "ttalgakverse",
+  "description": "딸각verse — 말 몇 마디로 나만의 브라우저 3D 메타버스를 만들어 배포까지. 인터뷰하며 세계관·컨셉 시안을 라이브로 그려 주고, 서버 없이 Supabase 멀티플레이 + Cloudflare workers.dev 배포. 커밋·push·배포 전 비밀 정보 자동 검사. / Click-and-talk your own browser 3D metaverse: live interview-driven worldbuilding and concept mockups, Supabase multiplayer, Cloudflare deploy, always-on secret scanning.",
   "version": "0.1.0",
   "author": {
     "name": "workromancer"
@@ -11,6 +11,7 @@
     "supabase",
     "cloudflare",
     "multiplayer",
+    "vibe-coding",
     "korean"
   ],
   "icon": ".claude-plugin/icon.png"

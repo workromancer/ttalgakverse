@@ -1,0 +1,7 @@
+#!/bin/sh
+# 딸각verse: 커밋 전에 비밀 정보(키·토큰·.env) 검사. 막히면 안내대로 처리하고 다시 커밋하세요.
+node tools/secret-scan.mjs --staged || {
+  echo ""
+  echo "커밋을 멈췄어요. 파일은 'node tools/secret-scan.mjs --fix' 로 빼고, 코드 속 키는 .env 로 옮기세요."
+  exit 1
+}

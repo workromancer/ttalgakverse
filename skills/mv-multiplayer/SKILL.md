@@ -1,6 +1,6 @@
 ---
 name: mv-multiplayer
-description: 메타버스 만들기 5단계 — 서버 없이 Supabase Realtime(Presence·Broadcast)으로 같은 구역에 있는 사람끼리 서로 보이게 한다. Supabase MCP 로 프로젝트 생성(지역 선택)·DB 함수 적용·키 발급까지 하고 .env 를 채운다. "멀티플레이", "같이 놀기", "다른 사람 보이게", "Supabase 연결" 요청에 사용.
+description: 딸각verse 5단계 — 서버 없이 Supabase Realtime(Presence·Broadcast)으로 같은 구역에 있는 사람끼리 서로 보이게 한다. Supabase MCP 로 프로젝트 생성(지역 선택)·DB 함수 적용·키 발급까지 하고 .env 를 채운다. "멀티플레이", "같이 놀기", "다른 사람 보이게", "Supabase 연결" / "multiplayer", "let friends join", "supabase realtime" 요청에 사용.
 ---
 
 # 5단계 · 멀티플레이 (mv-multiplayer)

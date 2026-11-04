@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>컨셉 시안 · 딸각verse</title>
+<!-- 컨셉 인터뷰 라이브 보드: interview.json(답) + concepts.json(시안들) + zone.json(미리볼 구역). live-preview.mjs 로 열어 두면 저절로 새로고침 -->
+<style>
+  * { box-sizing: border-box; margin: 0; } body { font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif; background: #0d1014; color: #eef2f5; padding: 20px; }
+  h1 { font-size: 22px; } .muted { opacity: .65; font-size: 13px; }
+  .qa { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .qa div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
+  .qa b { display: block; font-size: 11px; opacity: .6; } .qa .todo { opacity: .45; border-style: dashed; }
+  .g { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 14px; margin-top: 18px; }
+  .c { border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); background: #151a20; }
+  .c iframe { width: 100%; height: 500px; border: 0; display: block; }
+  .c a { display: block; padding: 10px 14px; color: #fff; font-weight: 800; text-decoration: none; }
+  .empty { margin-top: 40px; text-align: center; opacity: .7; }
+</style>
+</head>
+<body>
+<h1>🎨 월드 컨셉 시안 <span class="muted" id="when"></span></h1>
+<div class="muted" style="margin-top:4px">인터뷰 답을 반영해 시안이 바로 바뀌어요. "B로 할게", "A 색에 C 하늘" 처럼 말해 주세요.</div>
+<div class="qa" id="qa"></div>
+<div class="g" id="g"></div>
+<script>
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const load = (f, d) => fetch(f, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
+(async () => {
+  const [qa, cs] = await Promise.all([load('interview.json', []), load('concepts.json', [])]);
+  document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
+  document.getElementById('qa').innerHTML = qa.map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+  document.getElementById('g').innerHTML = cs.length ? cs.map((c) => `<div class="c"><iframe src="concept-template.html?id=${encodeURIComponent(c.id)}"></iframe><a href="concept-template.html?id=${encodeURIComponent(c.id)}" target="_blank">시안 ${esc(c.id)} · ${esc(c.name)} ↗</a></div>`).join('')
+    : '<div class="empty">✍️ 인터뷰 답을 바탕으로 시안을 만드는 중이에요…</div>';
+})();
+</script>
+</body>
+</html>

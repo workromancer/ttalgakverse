@@ -1,6 +1,6 @@
 ---
 name: mv-deploy
-description: 메타버스 만들기 6단계 — 빌드해서 Cloudflare Workers 정적 자산으로 https://<이름>.<계정>.workers.dev 에 공개한다. 공유 미리보기(OG 태그·파비콘), 원하면 내 도메인 연결까지. "배포", "공개", "링크 만들기", "도메인 연결" 요청에 사용.
+description: 딸각verse 6단계 — 빌드해서 Cloudflare Workers 정적 자산으로 https://<이름>.<계정>.workers.dev 에 공개한다. 공유 미리보기(OG 태그·파비콘), 원하면 내 도메인 연결까지. "배포", "공개", "링크 만들기", "도메인 연결" / "deploy", "publish", "workers.dev", "push to github" 요청에 사용.
 ---
 
 # 6단계 · 배포 (mv-deploy)
@@ -16,7 +16,7 @@ Cloudflare Workers 의 정적 자산(assets) 배포: 서버 코드 없이 `dist/
    - og 이미지: 컨셉 시안 화면을 1200×630 으로 캡처하거나(브라우저 도구), 세계 이름이 들어간 간단한 카드를 HTML 로 만들어 캡처해 `public/og.png` 로. 파비콘은 `public/favicon.svg` (템플릿에 기본 있음).
 4. **빌드·배포** — 바깥에 공개되는 일이므로 한 줄로 확인받고:
    ```bash
-   npm run build && npx wrangler deploy
+   npm run deploy   # = build → dist 비밀 정보 검사 → wrangler deploy
    ```
    출력 마지막의 `https://….workers.dev` 주소를 받는다. 처음이면 workers.dev 하위 도메인 등록 안내가 나올 수 있다 (대시보드에서 한 번 정하면 끝).
 5. **확인** — `curl -I <주소>` 200, 브라우저로 열어 첫 화면·포털·(멀티플레이면) 두 기기 동시 접속. 휴대폰으로도 열어 보라고 QR 이나 링크를 준다.
@@ -25,6 +25,13 @@ Cloudflare Workers 의 정적 자산(assets) 배포: 서버 코드 없이 `dist/
    "routes": [{ "pattern": "meta.example.com", "custom_domain": true }]
    ```
    를 넣고 다시 `npx wrangler deploy` (DNS·인증서는 Cloudflare 가 자동). og:url 도 바꾼다.
+
+## (선택) GitHub 에 코드 올리기
+
+- 저장소는 기본 **private**. 공개(public)는 사용자가 원할 때만.
+- 올리기 전에 꼭: `node tools/secret-scan.mjs --all` 결과를 보여 주고 ⛔ 가 0 인지 확인 (훅도 막지만 미리 보여 주는 게 친절함).
+- `gh repo create <이름> --private --source . --push` (gh 로그인이 안 돼 있으면 사용자에게 `! gh auth login`).
+- `.env` 는 `.gitignore` 에 있어 안 올라간다. Supabase anon/publishable 키는 공개용이라 괜찮지만, service_role·secret 키는 절대 코드에 넣지 않는다.
 
 ## 끝나면
 

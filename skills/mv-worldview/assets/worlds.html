@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>세계관 초안 · 딸각verse</title>
+<!--
+  세계관 인터뷰 라이브 보드. 같은 폴더의 interview.json(인터뷰 답)과 drafts.json(세계관 초안들)을 읽어 그림.
+  shared/live-preview.mjs 로 열어 두면 Claude 가 두 JSON 을 고칠 때마다 저절로 새로고침됨.
+  drafts.json: [{ id, pitch, audience, activities: [], world: <world.json 형식> }]
+-->
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; background: #0d1014; color: #eef2f5; padding: 20px; }
+  h1 { font-size: 22px; } .muted { opacity: .65; font-size: 13px; }
+  .qa { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .qa div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
+  .qa b { display: block; font-size: 11px; opacity: .6; margin-bottom: 2px; }
+  .qa .todo { opacity: .45; border-style: dashed; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-top: 18px; }
+  .card { background: #151a20; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; overflow: hidden; animation: in .35s ease; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+  .head { padding: 16px 18px 10px; } .tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; background: #6c5ce7; }
+  .head h2 { font-size: 22px; margin-top: 8px; } .pitch { margin-top: 6px; line-height: 1.55; font-size: 14px; opacity: .85; }
+  .who { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 18px; margin-top: 6px; font-size: 13px; }
+  .who div { background: rgba(255,255,255,.04); border-radius: 10px; padding: 8px 10px; } .who b { display: block; font-size: 11px; opacity: .6; }
+  svg { display: block; width: 100%; height: 280px; background: radial-gradient(circle at 50% 40%, #1d2530, #11161c); margin-top: 12px; }
+  .zones { padding: 12px 18px 16px; display: grid; gap: 8px; }
+  .z { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; } .z .dot { width: 12px; height: 12px; border-radius: 4px; margin-top: 3px; flex: none; }
+  .z b { font-size: 14px; } .props { opacity: .75; }
+  .pick { padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.06); font-size: 13px; opacity: .8; }
+  code { background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 6px; }
+  .empty { margin-top: 40px; text-align: center; opacity: .7; }
+</style>
+</head>
+<body>
+<h1>🗺️ 세계관 초안 <span class="muted" id="when"></span></h1>
+<div class="muted" style="margin-top:4px">인터뷰 답이 들어올 때마다 초안이 바로 바뀌어요. 마음에 드는 초안을 Claude 에게 "1번으로", "2번에 호수 추가"처럼 말해 주세요.</div>
+<div class="qa" id="qa"></div>
+<div class="grid" id="grid"></div>
+<script>
+const COLORS = ['#6c5ce7', '#00b894', '#fd79a8', '#fdcb6e', '#0984e3', '#e17055', '#00cec9', '#a29bfe'];
+const ICON = { tree: '🌳', bench: '🪑', lamp: '💡', sign: '🪧', box: '📦', rock: '🪨', flowers: '🌸', fountain: '⛲', kiosk: '🏪' };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+async function load(f, d) { try { const r = await fetch(f, { cache: 'no-store' }); return r.ok ? await r.json() : d; } catch { return d; } }
+// 구역 지도: 구역 크기 비율대로 사각형, 포털은 선으로 연결
+function map(w) {
+  const zs = w.zones || [], n = zs.length, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+  const W = 600, H = 280, cw = W / cols, ch = H / rows, maxS = Math.max(...zs.map((z) => Math.max(...(z.size || [40, 40]))));
+  const pos = {};
+  zs.forEach((z, i) => {
+    const c = i % cols, r = Math.floor(i / cols), [zw, zd] = z.size || [40, 40], k = Math.min(cw, ch) * 0.78 / maxS;
+    pos[z.id] = { x: c * cw + cw / 2, y: r * ch + ch / 2, w: Math.max(40, zw * k), h: Math.max(30, zd * k), z, i };
+  });
+  const seen = new Set(); let lines = '';
+  for (const z of zs) for (const p of z.portals || []) {
+    const a = pos[z.id], b = pos[p.to]; if (!a || !b) continue;
+    const key = [z.id, p.to].sort().join('|'); if (seen.has(key)) continue; seen.add(key);
+    lines += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#ffd166" stroke-width="3" stroke-dasharray="6 6" opacity=".8"/>`;
+  }
+  let boxes = '';
+  for (const { x, y, w: bw, h: bh, z, i } of Object.values(pos)) {
+    const col = COLORS[i % COLORS.length], [zw, zd] = z.size || [40, 40];
+    boxes += `<g><rect x="${x - bw / 2}" y="${y - bh / 2}" width="${bw}" height="${bh}" rx="${z.shape === 'room' ? 4 : 14}" fill="${col}22" stroke="${col}" stroke-width="2" ${z.shape === 'room' ? '' : 'stroke-dasharray="4 3"'}/>`;
+    for (const p of z.props || []) boxes += `<circle cx="${x + (p.x / zw) * bw}" cy="${y + (p.z / zd) * bh}" r="2.4" fill="${col}"/>`;
+    if (z.id === w.spawn) boxes += `<text x="${x}" y="${y - bh / 2 - 6}" text-anchor="middle" font-size="12" fill="#ffd166">★ 시작</text>`;
+    boxes += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">${esc(z.name)}</text></g>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}">${lines}${boxes}</svg>`;
+}
+async function render() {
+  const [qa, drafts] = await Promise.all([load('interview.json', []), load('drafts.json', [])]);
+  document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
+  document.getElementById('qa').innerHTML = (qa || []).map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+  const g = document.getElementById('grid');
+  if (!drafts.length) { g.innerHTML = '<div class="empty">✍️ 인터뷰 답을 바탕으로 초안을 그리는 중이에요…</div>'; return; }
+  g.innerHTML = drafts.map((d, k) => {
+    const w = d.world || {};
+    return `<div class="card"><div class="head"><span class="tag">초안 ${esc(d.id || k + 1)}</span><h2>${esc(w.title)}</h2><div class="pitch">${esc(d.pitch || w.tagline)}</div></div>
+      <div class="who"><div><b>누가 오나요</b>${esc(d.audience || '-')}</div><div><b>와서 하는 일</b>${esc((d.activities || []).join(' · ') || '-')}</div></div>
+      ${map(w)}
+      <div class="zones">${(w.zones || []).map((z, i) => `<div class="z"><div class="dot" style="background:${COLORS[i % COLORS.length]}"></div><div><b>${esc(z.name)}</b> <span class="muted">${z.shape === 'room' ? '실내' : '야외'} · ${(z.size || []).join('×')}m</span><div>${esc(z.desc || '')}</div><div class="props">${[...new Set((z.props || []).map((p) => ICON[p.kind] || '📦'))].join(' ')} ${(z.portals || []).map((p) => `→ ${esc(p.label || (w.zones || []).find((x) => x.id === p.to)?.name || p.to)}`).join(' ')}</div></div></div>`).join('')}</div>
+      <div class="pick">이걸로 할 거면 <code>초안 ${esc(d.id || k + 1)}로 할게</code></div></div>`;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>

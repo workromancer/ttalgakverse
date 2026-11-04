@@ -1,0 +1,8 @@
+{
+  "description": "딸각verse: git commit·push·저장소 만들기·배포 직전에 항상 비밀 정보(키·토큰·.env) 검사",
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/shared/secret-guard.mjs\"", "timeout": 60 } ] }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: mv-setup
-description: 메타버스 만들기 1단계 — 필요한 도구(Node.js, Supabase MCP, Cloudflare 계정/wrangler) 준비 상태를 확인하고 없는 것만 설정을 안내한다. "메타버스 준비", "MCP 설정", "Supabase 연결", "Cloudflare 로그인" 요청이나 metaverse 길잡이가 이 단계로 넘겼을 때 사용.
+description: 딸각verse 1단계 — 필요한 도구(Node.js, Supabase MCP, Cloudflare 계정/wrangler) 준비 상태를 확인하고 없는 것만 설정을 안내한다. "메타버스 준비", "MCP 설정", "Supabase 연결", "Cloudflare 로그인" 요청이나 metaverse 길잡이가 이 단계로 넘겼을 때 / "setup", "connect supabase", "cloudflare login" 사용.
 ---
 
 # 1단계 · 준비 (mv-setup)

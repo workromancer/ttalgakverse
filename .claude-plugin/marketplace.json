@@ -1,14 +1,14 @@
 {
-  "name": "metaverse-kit",
+  "name": "ttalgakverse",
   "owner": {
     "name": "workromancer"
   },
-  "description": "서버 없이 브라우저 3D 메타버스를 만드는 단계별 스킬 (세계관 → 컨셉 시안 → 빌드 → 멀티플레이 → 배포)",
+  "description": "딸각verse: 브라우저 3D 메타버스를 말로 만드는 스킬 묶음 / Build a browser metaverse by talking",
   "plugins": [
     {
-      "name": "metaverse-kit",
+      "name": "ttalgakverse",
       "source": "./",
-      "description": "브라우저 3D 메타버스 만들기 워크플로우 (세계관 → 시안 → 빌드 → 멀티플레이 → 배포)"
+      "description": "인터뷰 → 라이브 세계관·컨셉 시안 → 빌드 → 멀티플레이 → 배포, 비밀 정보 자동 검사"
     }
   ]
 }

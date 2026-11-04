@@ -1,91 +1,106 @@
-# 🌏 metaverse-kit
+<p align="center"><img src=".claude-plugin/icon.png" width="120" alt="딸각verse" /></p>
 
-**서버 없이, 누구나, 원하는 분위기로** 브라우저 3D 메타버스를 만들고 공개하는 Claude Code 스킬 묶음.
+<h1 align="center">딸각verse</h1>
+<p align="center"><b>말 몇 마디, 딸각 몇 번이면 나만의 메타버스.</b><br/>인터뷰하며 세계를 함께 그리고, 서버 없이 친구들과 걷고, 링크 하나로 공개까지.</p>
+<p align="center">한국어 · <a href="README.en.md">English</a></p>
 
-"별빛이 내려앉는 정원 마을을 만들고 싶어" 한 마디에서 시작해 → 세계관을 정하고 → **컨셉 시안 3개를 HTML 로 보고 고르고** → 실제 3D 월드를 만들고 → 친구들과 같이 걷게(멀티플레이) 하고 → `https://<이름>.workers.dev` 로 공개하기까지, 단계마다 스킬이 안내합니다. 혼자 하다 막힌 프로젝트도 진단해서 이어갑니다.
+---
 
-> 서울 지하철 2호선 메타버스 [메트로버스](https://metrobus.workromancer.ai)를 만들면서 쓴 방법을 누구나 쓸 수 있게 정리했습니다.
+"동네 작은 책방 골목에서 사람들이 만나면 좋겠어" — 이 한 마디로 시작합니다.
 
-## 설치
+Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신만의 세계관 초안이 실시간으로 그려지고**, 이어서 **분위기·색감 시안 3개가 3D 로** 나타납니다. 고르면 그대로 걸어 다닐 수 있는 월드가 되고, 친구와 같이 접속하고, `https://<이름>.workers.dev` 로 공개됩니다.
 
-Claude Code 에서:
+- 🎙️ **인터뷰로 만드는 세계** — 고정된 템플릿 고르기가 아니라, 답할 때마다 초안이 자랍니다
+- 🔴 **라이브 미리보기** — 세계관 지도·컨셉 시안이 브라우저에서 바로바로 바뀜 (휴대폰으로도)
+- 👥 **서버 없는 멀티플레이** — Supabase Realtime, 같은 구역 사람끼리 실시간
+- 🚀 **무료로 공개** — Cloudflare Workers 정적 배포, 원하면 내 도메인
+- 🔐 **비밀 정보 자동 검사** — 커밋·push·배포 직전마다 키·토큰·`.env` 를 찾아 막고 걸러 줌
+- 🧭 **중간에 막혀도 이어서** — 진단 스킬이 어디까지 됐는지 보고 다음 단계로
+
+> 서울 지하철 2호선 메타버스 [메트로버스](https://metrobus.workromancer.ai)를 만든 과정을 누구나 쓸 수 있게 정리했습니다.
+
+## 설치 (Claude Code)
 
 ```
-/plugin marketplace add <이 저장소 GitHub 주소>
-/plugin install metaverse-kit@metaverse-kit
+/plugin marketplace add workromancer/ttalgakverse
+/plugin install ttalgakverse@ttalgakverse
 ```
 
-그다음 아무 빈 폴더에서 **"메타버스 만들고 싶어"** 라고 말하거나 `/metaverse` 를 실행하세요.
+빈 폴더에서 **"메타버스 만들고 싶어"** 라고 말하거나 `/metaverse` 를 실행하세요.
 
-## 6단계
+## 진행 단계
 
-| | 스킬 | 하는 일 | 남는 것 |
-|---|---|---|---|
-| 0 | `/metaverse` | 길잡이: 지금 어디까지 왔는지 보고 다음 단계로 | |
-| 1 | `/mv-setup` | Node·**Supabase MCP**·**Cloudflare(wrangler)** 준비 확인과 설정 안내 | |
-| 2 | `/mv-worldview` | 세계관·구역·포털 정하기 (예시 6개 제공) | `world/world.json` |
-| 3 | `/mv-concept` | 월드 **컨셉 시안 3개를 HTML 로** 만들어 나란히 비교 → 선택 | `concepts/*.html`, `world/concept.json` |
-| 4 | `/mv-build` | three.js 템플릿 엔진으로 실제 월드, 로컬 실행 | `src/` |
-| 5 | `/mv-multiplayer` | Supabase Realtime 으로 같은 구역 사람끼리 보이게 | `.env`, DB 함수 |
-| 6 | `/mv-deploy` | Cloudflare Workers 정적 배포 → `*.workers.dev` (원하면 내 도메인) | 공개 URL |
-| 🩺 | `/mv-doctor` | 막혔을 때 진단·처방, 다른 데서 하다 온 프로젝트 이어가기 | |
+| | 스킬 | 하는 일 |
+|---|---|---|
+| 0 | `/metaverse` | 길잡이 — 지금 어디까지 왔는지 보고 다음 단계로 |
+| 1 | `/mv-setup` | Node · **Supabase MCP** · **Cloudflare(wrangler)** 준비 확인과 설정 안내 |
+| 2 | `/mv-worldview` | 🎙️ 인터뷰 → 🔴 세계관 초안(구역 지도·포털)을 라이브로 → 고르기 |
+| 3 | `/mv-concept` | 🎙️ 분위기 인터뷰 → 🔴 3D 컨셉 시안 3개를 라이브로 → 고르기·섞기 |
+| 4 | `/mv-build` | three.js 엔진으로 실제 월드, 로컬 실행 (`npm run dev`) |
+| 5 | `/mv-multiplayer` | Supabase 프로젝트·키 설정, 같은 구역 사람끼리 보이게 |
+| 6 | `/mv-deploy` | `*.workers.dev` 공개 (+ 내 도메인, + GitHub private 저장소) |
+| 🩺 | `/mv-doctor` | 막혔을 때 진단·처방, 다른 데서 하다 온 프로젝트 이어가기 |
 
 ```mermaid
 flowchart LR
-  A[/metaverse/] --> B[mv-setup] --> C[mv-worldview] --> D[mv-concept] --> E[mv-build] --> F[mv-multiplayer] --> G[mv-deploy]
+  A[/metaverse/] --> B[mv-setup] --> C[mv-worldview<br/>인터뷰·라이브] --> D[mv-concept<br/>인터뷰·라이브] --> E[mv-build] --> F[mv-multiplayer] --> G[mv-deploy]
   E -. 혼자 플레이 .-> G
   H[mv-doctor] -. 어디서든 이어서 .-> C & D & E & F & G
 ```
 
-자세한 설계: [docs/workflow.md](docs/workflow.md)
+## 🔴 라이브 미리보기
+
+인터뷰를 시작하면 Claude 가 `http://localhost:4321/` 에 미리보기 서버를 띄웁니다. 답할 때마다 화면이 저절로 새로고침되며 초안이 바뀝니다.
+
+| 세계관 보드 `/worlds/` | 컨셉 보드 `/concepts/` |
+|---|---|
+| 인터뷰 답 · 초안별 구역 지도 · 포털 연결 · 할 일 | 같은 구역을 세 가지 분위기의 3D 로 · 색 팔레트 · UI 샘플 |
+
+## 🔐 비밀 정보 검사 (항상 켜짐)
+
+| 언제 | 어떻게 |
+|---|---|
+| Claude 가 `git commit` · `git push` · `gh repo create` · 배포 명령을 실행하기 직전 | 플러그인 훅이 검사, 문제 있으면 **명령을 멈추고** 사용자에게 경고·처리 |
+| Claude 밖에서 직접 커밋·push 할 때 | 프로젝트의 `.githooks/pre-commit` · `pre-push` 가 같은 검사 |
+| `npm run deploy` | 빌드 결과(`dist/`)에 비밀 키가 섞였는지 검사 후 배포 |
+
+찾는 것: `.env` 류 파일, 개인키·인증서, Supabase **service_role**·secret 키, Anthropic·OpenAI·GitHub·AWS·Slack·Telegram·Stripe·Cloudflare 토큰, 코드에 적힌 비밀번호 등. (Supabase anon/publishable 키처럼 공개용 키는 "괜찮음"으로 안내)
+걸러 주기: `secret-scan.mjs --fix` 가 위험한 파일을 커밋에서 빼고 `.gitignore` 에 추가합니다.
 
 ## 이어서 하기
 
-모든 단계는 프로젝트 폴더의 `.metaverse/state.json`(기계용)과 `.metaverse/PROGRESS.md`(사람용)에 기록을 남깁니다. 다른 날, 다른 컴퓨터, 다른 AI 세션에서도 `/metaverse` 한 번이면 이어집니다.
+모든 단계는 프로젝트의 `.metaverse/state.json`(기계용)과 `.metaverse/PROGRESS.md`(사람용)에 기록됩니다. 다른 날, 다른 컴퓨터, 다른 세션에서도 `/metaverse` 한 번이면 이어집니다.
 
 ```
 $ node skills/mv-doctor/scripts/doctor.mjs ~/my-world
 ✅ mv-setup        node 22.11.0, npm 10.9.0
-✅ mv-worldview    별빛 정원 · 구역 3개
-✅ mv-concept      선택: 파스텔 밤하늘
+✅ mv-worldview    책방 골목 · 구역 3개
+✅ mv-concept      선택: 노을 책방
 ✅ mv-build        npm 패키지 설치됨
 ⬜ mv-multiplayer  .env 에 VITE_SUPABASE_URL/KEY 없음 (없어도 혼자 플레이는 됨)
-⬜ mv-deploy       wrangler 이름 starlight, 아직 배포 기록 없음
+⬜ mv-deploy       wrangler 이름 book-alley, 아직 배포 기록 없음
 
 👉 다음 단계: /mv-multiplayer
 ```
 
-## 무엇이 만들어지나 (템플릿 엔진)
+## 만들어지는 월드 (템플릿 엔진)
 
-- 구역(zone)마다 바닥·벽·소품(`tree bench lamp sign box rock flowers fountain kiosk`)·빛나는 **포털**
-- 동글동글 아바타, 이모트(👋❤️🎉), 닉네임, 이름표
-- WASD·달리기·점프·드래그 시점·바닥 탭 이동, 휴대폰 조이스틱
-- 멀티플레이: 같은 구역 사람끼리 위치·방향·이모트 실시간 (Supabase Presence·Broadcast, 서버 코드 없음)
-- 색·빛·하늘은 `concept.json`, 구역·소품은 `world.json` 만 바꾸면 다른 세계
-
-## 예시
-
-`examples/starlight/concepts/index.html` — 같은 광장을 세 가지 분위기(파스텔 밤하늘 · 한낮의 여름 정원 · 네온 야시장)로 그린 시안. 브라우저로 바로 열립니다.
+- 구역마다 바닥·벽·소품(`tree bench lamp sign box rock flowers fountain kiosk`)과 빛나는 포털
+- 동글동글 아바타 · 이모트 · 닉네임 · 이름표 (월드 색)
+- WASD · 달리기 · 점프 · 드래그 시점 · 바닥 탭 이동 · 휴대폰 조이스틱
+- `world/world.json`(구역) + `world/concept.json`(색·빛) 두 파일만 바꾸면 다른 세계
 
 ## 비용
 
-- Cloudflare Workers 정적 자산: 무료 요금제로 충분
-- Supabase: 무료 요금제 (동시 접속 수백 명 수준까지)
-- 도메인은 선택 (없으면 `*.workers.dev`)
+Cloudflare Workers 정적 자산·Supabase 모두 무료 요금제로 시작할 수 있습니다. 도메인은 선택.
 
-## 저장소 구조
+## 구조
 
 ```
-.claude-plugin/        플러그인·마켓플레이스 정보
-skills/
-  metaverse/           길잡이 (입구)
-  mv-setup/            1 준비
-  mv-worldview/        2 세계관 (+ 예시, world.json 검사기)
-  mv-concept/          3 시안 (+ HTML 시안 틀, 생성 스크립트)
-  mv-build/            4 빌드 (+ template/ 엔진)
-  mv-multiplayer/      5 멀티플레이 (+ sql/)
-  mv-deploy/           6 배포
-  mv-doctor/           진단 (+ doctor.mjs)
-docs/                  워크플로우 설계, 상태·스키마 형식
-examples/              시안 예시
+.claude-plugin/   플러그인·마켓플레이스 정보
+hooks/            항상 켜진 비밀 정보 검사 훅
+shared/           secret-scan.mjs · secret-guard.mjs · live-preview.mjs
+skills/           metaverse · mv-setup · mv-worldview · mv-concept · mv-build · mv-multiplayer · mv-deploy · mv-doctor
+docs/             워크플로우 설계, 상태·스키마 형식
+examples/         컨셉 시안 예시
 ```
