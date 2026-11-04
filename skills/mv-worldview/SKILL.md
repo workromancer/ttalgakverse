@@ -52,7 +52,10 @@ world 작성 규칙:
 
 ## 3) 고르고 다듬기 → 확정
 
-- "1번으로", "2번에 호수 추가" 같은 답 → drafts 를 고쳐 다시 보여 준다 (보통 1~3번 오감).
+- **브라우저에서 고르기**: 초안을 보여 준 직후 `node <키트 루트>/shared/wait-choice.mjs worlds` 를 **백그라운드로** 실행해 둔다 (Bash `run_in_background`). 사용자가 보드에서 「이 초안으로 할게요」를 누르면 이 명령이 끝나며 알림이 오고, 출력에 고른 id 와 고칠 점(note)이 있다 → 채팅을 기다리지 말고 바로 이어서 진행한다.
+  - note 가 있으면 반영해 초안을 고쳐 다시 보여 주고 `rm -f worlds/choice.json` 후 wait-choice 를 다시 띄운다. note 가 없으면 확정.
+  - 사용자가 채팅으로 먼저 고르면 그걸 따르고, 돌고 있는 wait-choice 는 그냥 두거나 멈춘다 (30분 뒤 저절로 끝남).
+- 채팅으로 "1번으로", "2번에 호수 추가" 같은 답 → drafts 를 고쳐 다시 보여 준다 (보통 1~3번 오감).
 - 확정하면 그 `world` 를 `world/world.json` 으로 저장하고 검사:
   `node <이 스킬 폴더>/reference/validate.mjs world/world.json` → 문제는 고친다.
 - 인터뷰 답은 `world/interview.json` 으로도 복사해 둔다 (다음 단계·나중 세션이 참고).

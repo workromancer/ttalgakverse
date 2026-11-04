@@ -28,14 +28,18 @@
   .zones { padding: 12px 18px 16px; display: grid; gap: 8px; }
   .z { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; } .z .dot { width: 12px; height: 12px; border-radius: 4px; margin-top: 3px; flex: none; }
   .z b { font-size: 14px; } .props { opacity: .75; }
-  .pick { padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.06); font-size: 13px; opacity: .8; }
+  .pick { padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.06); font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pick input { flex: 1; min-width: 160px; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; }
+  .pick button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .pick .hint { width: 100%; opacity: .6; font-size: 12px; }
+  .card.chosen { outline: 3px solid #50fa7b; } .chosen-msg { color: #50fa7b; font-weight: 800; }
   code { background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 6px; }
   .empty { margin-top: 40px; text-align: center; opacity: .7; }
 </style>
 </head>
 <body>
 <h1>🗺️ 세계관 초안 <span class="muted" id="when"></span></h1>
-<div class="muted" style="margin-top:4px">인터뷰 답이 들어올 때마다 초안이 바로 바뀌어요. 마음에 드는 초안을 Claude 에게 "1번으로", "2번에 호수 추가"처럼 말해 주세요.</div>
+<div class="muted" style="margin-top:4px">인터뷰 답이 들어올 때마다 초안이 바로 바뀌어요. 마음에 드는 초안의 <b>이 초안으로 할게요</b> 를 누르거나, Claude 에게 "1번으로", "2번에 호수 추가"처럼 말해 주세요.</div>
 <div class="qa" id="qa"></div>
 <div class="grid" id="grid"></div>
 <script>
@@ -69,19 +73,29 @@ function map(w) {
   return `<svg viewBox="0 0 ${W} ${H}">${lines}${boxes}</svg>`;
 }
 async function render() {
-  const [qa, drafts] = await Promise.all([load('interview.json', []), load('drafts.json', [])]);
+  const [qa, drafts, choice] = await Promise.all([load('interview.json', []), load('drafts.json', []), load('choice.json', null)]);
   document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
   document.getElementById('qa').innerHTML = (qa || []).map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
   const g = document.getElementById('grid');
   if (!drafts.length) { g.innerHTML = '<div class="empty">✍️ 인터뷰 답을 바탕으로 초안을 그리는 중이에요…</div>'; return; }
   g.innerHTML = drafts.map((d, k) => {
     const w = d.world || {};
-    return `<div class="card"><div class="head"><span class="tag">초안 ${esc(d.id || k + 1)}</span><h2>${esc(w.title)}</h2><div class="pitch">${esc(d.pitch || w.tagline)}</div></div>
+    return `<div class="card${String(choice?.id) === String(d.id || k + 1) ? ' chosen' : ''}"><div class="head"><span class="tag">초안 ${esc(d.id || k + 1)}</span><h2>${esc(w.title)}</h2><div class="pitch">${esc(d.pitch || w.tagline)}</div></div>
       <div class="who"><div><b>누가 오나요</b>${esc(d.audience || '-')}</div><div><b>와서 하는 일</b>${esc((d.activities || []).join(' · ') || '-')}</div></div>
       ${map(w)}
       <div class="zones">${(w.zones || []).map((z, i) => `<div class="z"><div class="dot" style="background:${COLORS[i % COLORS.length]}"></div><div><b>${esc(z.name)}</b> <span class="muted">${z.shape === 'room' ? '실내' : '야외'} · ${(z.size || []).join('×')}m</span><div>${esc(z.desc || '')}</div><div class="props">${[...new Set((z.props || []).map((p) => ICON[p.kind] || '📦'))].join(' ')} ${(z.portals || []).map((p) => `→ ${esc(p.label || (w.zones || []).find((x) => x.id === p.to)?.name || p.to)}`).join(' ')}</div></div></div>`).join('')}</div>
-      <div class="pick">이걸로 할 거면 <code>초안 ${esc(d.id || k + 1)}로 할게</code></div></div>`;
+      <div class="pick">${String(choice?.id) === String(d.id || k + 1) ? `<span class="chosen-msg">✅ 골랐어요 — Claude 에게 전달됐어요${choice.note ? ` (고칠 점: ${esc(choice.note)})` : ''}</span>` : `<input placeholder="고칠 점 (선택) 예: 호수 하나 추가" data-note="${esc(d.id || k + 1)}" /><button data-pick="${esc(d.id || k + 1)}">이 초안으로 할게요</button><div class="hint">채팅으로 <code>초안 ${esc(d.id || k + 1)}로 할게</code> 라고 해도 돼요</div>`}</div></div>`;
   }).join('');
+  bindPick(g, 'worlds');
+}
+// "이 초안으로 할게요" → 라이브 서버가 worlds/choice.json 에 저장 → Claude 가 기다리다 이어서 진행
+function bindPick(root, board) {
+  root.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', async () => {
+    const id = b.dataset.pick, note = root.querySelector(`[data-note="${CSS.escape(id)}"]`)?.value.trim() || '';
+    b.disabled = true; b.textContent = '보내는 중…';
+    const r = await fetch('/__choice', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board, id, note }) }).catch(() => null);
+    if (!r?.ok) { b.disabled = false; b.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 골라 주세요.'); }
+  }));
 }
 render();
 </script>

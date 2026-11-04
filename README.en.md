@@ -11,7 +11,7 @@ Start with one sentence: *"A Seoul walk metaverse — Hangang Park, Seokchon Lak
 While Claude asks you a few questions, **a draft of your world is drawn live in your browser**, then **three 3D mood/colour concepts** appear. Pick one and it becomes a world you can walk around, invite friends into, and publish at `https://<name>.workers.dev`.
 
 - 🎙️ **Interview-driven worldbuilding** — not a fixed template; drafts grow with every answer
-- 🔴 **Live preview** — world map and concept mockups update instantly in the browser (phone too)
+- 🔴 **Live preview** — world map and concept mockups update instantly in the browser (phone too); pick one with a button right on the board and Claude continues
 - 👥 **Serverless multiplayer** — Supabase Realtime, people in the same zone see each other
 - 🚀 **Free to publish** — Cloudflare Workers static assets, optional custom domain
 - 🔐 **Always-on secret scanning** — keys, tokens and `.env` files are caught and filtered before every commit, push and deploy

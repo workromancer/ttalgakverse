@@ -48,6 +48,9 @@ node <키트 루트>/shared/live-preview.mjs . 4321   # 이미 떠 있으면 그
 
 ## 3) 고르고 다듬기 → 확정
 
+- **브라우저에서 고르기**: 초안을 보여 준 직후 `node <키트 루트>/shared/wait-choice.mjs concepts` 를 **백그라운드로** 실행해 둔다 (Bash `run_in_background`). 사용자가 보드에서 「이 시안으로 할게요」를 누르면 이 명령이 끝나며 알림이 오고, 출력에 고른 id 와 고칠 점(note)이 있다 → 채팅을 기다리지 말고 바로 이어서 진행한다.
+  - note 가 있으면 반영해 시안을 고쳐 다시 보여 주고 `rm -f concepts/choice.json` 후 wait-choice 를 다시 띄운다. note 가 없으면 확정.
+  - 사용자가 채팅으로 먼저 고르면 그걸 따르고, 돌고 있는 wait-choice 는 그냥 두거나 멈춘다 (30분 뒤 저절로 끝남).
 - "B로", "A 색에 C 하늘" → 섞은 새 시안 D 를 추가해 보여 준다 (반복 가능).
 - 확정하면 그 객체를 `world/concept.json` 으로 저장. 인터뷰 답은 `world/concept-interview.json`.
 - 공유용 단독 파일이 필요하면: `node <이 스킬 폴더>/scripts/make-concepts.mjs concepts/export concepts/concepts.json concepts/zone.json` (파일만 열어도 보이는 버전).

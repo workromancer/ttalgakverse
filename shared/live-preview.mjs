@@ -4,7 +4,7 @@
 //  node live-preview.mjs <폴더> [포트=4321]   → http://localhost:<포트>/ (같은 와이파이 휴대폰도 Network 주소로)
 //  이미 그 포트에 떠 있으면 새로 띄우지 않고 주소만 알려 줌
 import { createServer } from 'node:http';
-import { readFileSync, existsSync, statSync, watch } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, statSync, watch } from 'node:fs';
 import { join, extname, resolve } from 'node:path';
 import { networkInterfaces } from 'node:os';
 
@@ -16,6 +16,20 @@ const lan = Object.values(networkInterfaces()).flat().find((n) => n && n.family 
 
 const server = createServer((req, res) => {
   const url = decodeURIComponent(req.url.split('?')[0]);
+  // 보드에서 "이걸로 할게요" 를 누르면 → <보드 폴더>/choice.json 에 저장 (스킬이 wait-choice.mjs 로 기다렸다가 읽음)
+  if (url === '/__choice' && req.method === 'POST') {
+    let raw = ''; req.on('data', (c) => { raw += c; if (raw.length > 4000) req.destroy(); });
+    req.on('end', () => {
+      try {
+        const b = JSON.parse(raw), board = ['worlds', 'concepts'].includes(b.board) ? b.board : null;
+        if (!board || !existsSync(join(dir, board))) throw new Error('board');
+        const choice = { id: String(b.id ?? '').slice(0, 20), note: String(b.note ?? '').slice(0, 300), at: new Date().toISOString() };
+        writeFileSync(join(dir, board, 'choice.json'), JSON.stringify(choice, null, 1));
+        res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: true }));
+      } catch { res.writeHead(400); res.end('{"ok":false}'); }
+    });
+    return;
+  }
   if (url === '/__live') {
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache', connection: 'keep-alive' });
     res.write(': ok\n\n'); clients.add(res); req.on('close', () => clients.delete(res)); return;

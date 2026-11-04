@@ -15,22 +15,34 @@
   .c iframe { width: 100%; height: 500px; border: 0; display: block; }
   .c a { display: block; padding: 10px 14px; color: #fff; font-weight: 800; text-decoration: none; }
   .empty { margin-top: 40px; text-align: center; opacity: .7; }
+  .pick { padding: 0 14px 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .pick input { flex: 1; min-width: 150px; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
+  .pick button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .c.chosen { outline: 3px solid #50fa7b; } .chosen-msg { color: #50fa7b; font-weight: 800; font-size: 14px; }
 </style>
 </head>
 <body>
 <h1>🎨 월드 컨셉 시안 <span class="muted" id="when"></span></h1>
-<div class="muted" style="margin-top:4px">인터뷰 답을 반영해 시안이 바로 바뀌어요. "B로 할게", "A 색에 C 하늘" 처럼 말해 주세요.</div>
+<div class="muted" style="margin-top:4px">인터뷰 답을 반영해 시안이 바로 바뀌어요. 마음에 드는 시안의 <b>이 시안으로 할게요</b> 를 누르거나, "B로 할게", "A 색에 C 하늘" 처럼 말해 주세요.</div>
 <div class="qa" id="qa"></div>
 <div class="g" id="g"></div>
 <script>
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const load = (f, d) => fetch(f, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
 (async () => {
-  const [qa, cs] = await Promise.all([load('interview.json', []), load('concepts.json', [])]);
+  const [qa, cs, choice] = await Promise.all([load('interview.json', []), load('concepts.json', []), load('choice.json', null)]);
   document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
   document.getElementById('qa').innerHTML = qa.map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
-  document.getElementById('g').innerHTML = cs.length ? cs.map((c) => `<div class="c"><iframe src="concept-template.html?id=${encodeURIComponent(c.id)}"></iframe><a href="concept-template.html?id=${encodeURIComponent(c.id)}" target="_blank">시안 ${esc(c.id)} · ${esc(c.name)} ↗</a></div>`).join('')
+  document.getElementById('g').innerHTML = cs.length ? cs.map((c) => { const on = String(choice?.id) === String(c.id); return `<div class="c${on ? ' chosen' : ''}"><iframe src="concept-template.html?id=${encodeURIComponent(c.id)}"></iframe><a href="concept-template.html?id=${encodeURIComponent(c.id)}" target="_blank">시안 ${esc(c.id)} · ${esc(c.name)} ↗</a>
+      <div class="pick">${on ? `<span class="chosen-msg">✅ 골랐어요 — Claude 에게 전달됐어요${choice.note ? ` (고칠 점: ${esc(choice.note)})` : ''}</span>` : `<input placeholder="고칠 점 (선택) 예: 하늘은 C 처럼" data-note="${esc(c.id)}" /><button data-pick="${esc(c.id)}">이 시안으로 할게요</button>`}</div></div>`; }).join('')
     : '<div class="empty">✍️ 인터뷰 답을 바탕으로 시안을 만드는 중이에요…</div>';
+  // "이 시안으로 할게요" → 라이브 서버가 concepts/choice.json 에 저장 → Claude 가 기다리다 이어서 진행
+  document.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', async () => {
+    const id = b.dataset.pick, note = document.querySelector(`[data-note="${CSS.escape(id)}"]`)?.value.trim() || '';
+    b.disabled = true; b.textContent = '보내는 중…';
+    const r = await fetch('/__choice', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board: 'concepts', id, note }) }).catch(() => null);
+    if (!r?.ok) { b.disabled = false; b.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 골라 주세요.'); }
+  }));
 })();
 </script>
 </body>
