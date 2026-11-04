@@ -32,16 +32,18 @@ In an empty folder, say **"I want to build a metaverse"** or run `/metaverse`. C
 
 ## Steps
 
-| | Skill | What it does |
-|---|---|---|
-| 0 | `/metaverse` | Guide — checks progress and routes to the next step |
-| 1 | `/mv-setup` | Node · **Supabase MCP** · **Cloudflare (wrangler)** checks and setup help |
-| 2 | `/mv-worldview` | 🎙️ interview → 🔴 live world drafts (zone map, portals) → pick |
-| 3 | `/mv-concept` | 🎙️ mood interview → 🔴 three live 3D concepts → pick or mix |
-| 4 | `/mv-build` | Real world on a three.js engine, run locally (`npm run dev`) |
-| 5 | `/mv-multiplayer` | Supabase project & keys; people in the same zone see each other |
-| 6 | `/mv-deploy` | Publish to `*.workers.dev` (+ custom domain, + private GitHub repo) |
-| 🩺 | `/mv-doctor` | Diagnose, fix, and continue projects started elsewhere |
+You don't need slash commands — **just say it in chat** and Claude picks the right skill (or call one directly, e.g. `/metaverse`).
+
+| | Just say | Skill | What it does |
+|---|---|---|---|
+| 0 | "I want to build a metaverse" | `metaverse` | Guide — checks progress and routes to the next step |
+| 1 | "Am I ready?" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare (wrangler)** checks and setup help |
+| 2 | "Let's design the world" | `mv-worldview` | 🎙️ interview → 🔴 live world drafts (zone map, portals) → pick |
+| 3 | "Let's pick the mood" | `mv-concept` | 🎙️ mood interview → 🔴 three live 3D concepts → pick or mix |
+| 4 | "Build the world" | `mv-build` | Real world on a three.js engine, run locally (`npm run dev`) |
+| 5 | "Let my friends join" | `mv-multiplayer` | Supabase project & keys; people in the same zone see each other |
+| 6 | "Deploy it" | `mv-deploy` | Publish to `*.workers.dev` (+ custom domain, + private GitHub repo) |
+| 🩺 | "I'm stuck", "where was I" | `mv-doctor` | Diagnose, fix, and continue projects started elsewhere |
 
 ## 🔐 Secret scanning (always on)
 

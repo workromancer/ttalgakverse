@@ -14,6 +14,7 @@ const sh = (c) => { try { return execSync(c, { cwd: dir, stdio: ['ignore', 'pipe
 const env = Object.fromEntries((read('.env') || '').split('\n').filter((l) => l.includes('=') && !l.startsWith('#')).map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim()]));
 
 const STEPS = ['setup', 'worldview', 'concept', 'build', 'multiplayer', 'deploy'];
+const ASK = { setup: '준비됐는지 봐줘', worldview: '세계관 정하자', concept: '분위기 정하자', build: '월드 만들어 줘', multiplayer: '친구랑 같이 놀게 해 줘', deploy: '배포해 줘' }; // 슬래시 명령 없이 이렇게 말하면 됨
 const SKILL = { setup: 'mv-setup', worldview: 'mv-worldview', concept: 'mv-concept', build: 'mv-build', multiplayer: 'mv-multiplayer', deploy: 'mv-deploy' };
 const state = json('.metaverse/state.json') || { version: 1, project: {}, steps: {}, choices: {} };
 const checks = {};
@@ -53,5 +54,5 @@ if (write) { mkdirSync(P('.metaverse'), { recursive: true }); writeFileSync(P('.
 const icon = { done: '✅', todo: '⬜', in_progress: '🟡', skipped: '⏭️' };
 console.log(`📂 ${dir}`);
 for (const s of STEPS) console.log(`${icon[state.steps[s].status]} ${SKILL[s].padEnd(15)} ${checks[s].detail}`);
-console.log(next ? `\n👉 다음 단계: /${SKILL[next]}` : '\n🎉 모든 단계 완료! 바꾸고 싶은 게 있으면 해당 단계 스킬을 다시 실행하세요.');
+console.log(next ? `\n👉 다음 단계: ${SKILL[next]} — "${ASK[next]}" 라고 말하면 돼요` : '\n🎉 모든 단계 완료! 바꾸고 싶은 게 있으면 해당 단계 스킬을 다시 실행하세요.');
 console.log(JSON.stringify({ next: state.next, steps: Object.fromEntries(STEPS.map((s) => [s, state.steps[s].status])) }));

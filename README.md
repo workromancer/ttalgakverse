@@ -30,16 +30,18 @@ Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신
 
 ## 진행 단계
 
-| | 스킬 | 하는 일 |
-|---|---|---|
-| 0 | `/metaverse` | 길잡이 — 지금 어디까지 왔는지 보고 다음 단계로 |
-| 1 | `/mv-setup` | Node · **Supabase MCP** · **Cloudflare(wrangler)** 준비 확인과 설정 안내 |
-| 2 | `/mv-worldview` | 🎙️ 인터뷰 → 🔴 세계관 초안(구역 지도·포털)을 라이브로 → 고르기 |
-| 3 | `/mv-concept` | 🎙️ 분위기 인터뷰 → 🔴 3D 컨셉 시안 3개를 라이브로 → 고르기·섞기 |
-| 4 | `/mv-build` | three.js 엔진으로 실제 월드, 로컬 실행 (`npm run dev`) |
-| 5 | `/mv-multiplayer` | Supabase 프로젝트·키 설정, 같은 구역 사람끼리 보이게 |
-| 6 | `/mv-deploy` | `*.workers.dev` 공개 (+ 내 도메인, + GitHub private 저장소) |
-| 🩺 | `/mv-doctor` | 막혔을 때 진단·처방, 다른 데서 하다 온 프로젝트 이어가기 |
+슬래시 명령은 몰라도 돼요. 아래처럼 **그냥 채팅으로 말하면** Claude 가 알맞은 스킬을 알아서 씁니다. (`/metaverse` 처럼 직접 불러도 됨)
+
+| | 이렇게 말하면 | 스킬 | 하는 일 |
+|---|---|---|---|
+| 0 | "메타버스 만들고 싶어" | `metaverse` | 길잡이 — 지금 어디까지 왔는지 보고 다음 단계로 |
+| 1 | "준비됐는지 봐줘" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare(wrangler)** 준비 확인과 설정 안내 |
+| 2 | "세계관 정하자" | `mv-worldview` | 🎙️ 인터뷰 → 🔴 세계관 초안(구역 지도·포털)을 라이브로 → 고르기 |
+| 3 | "분위기 정하자" | `mv-concept` | 🎙️ 분위기 인터뷰 → 🔴 3D 컨셉 시안 3개를 라이브로 → 고르기·섞기 |
+| 4 | "월드 만들어 줘" | `mv-build` | three.js 엔진으로 실제 월드, 로컬 실행 (`npm run dev`) |
+| 5 | "친구랑 같이 놀게 해 줘" | `mv-multiplayer` | Supabase 프로젝트·키 설정, 같은 구역 사람끼리 보이게 |
+| 6 | "배포해 줘" | `mv-deploy` | `*.workers.dev` 공개 (+ 내 도메인, + GitHub private 저장소) |
+| 🩺 | "막혔어", "어디까지 했지" | `mv-doctor` | 막혔을 때 진단·처방, 다른 데서 하다 온 프로젝트 이어가기 |
 
 ```mermaid
 flowchart LR
@@ -80,7 +82,7 @@ $ node skills/mv-doctor/scripts/doctor.mjs ~/my-world
 ⬜ mv-multiplayer  .env 에 VITE_SUPABASE_URL/KEY 없음 (없어도 혼자 플레이는 됨)
 ⬜ mv-deploy       wrangler 이름 seoul-walk, 아직 배포 기록 없음
 
-👉 다음 단계: /mv-multiplayer
+👉 다음 단계: mv-multiplayer — "친구랑 같이 놀게 해 줘" 라고 말하면 돼요
 ```
 
 ## 만들어지는 월드 (템플릿 엔진)

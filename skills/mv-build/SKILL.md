@@ -1,6 +1,6 @@
 ---
 name: mv-build
-description: 딸각verse 4단계 — 템플릿 엔진(three.js + Vite)을 프로젝트에 깔고 world.json·concept.json 대로 실제 3D 월드를 만들어 로컬에서 실행·확인한다. 새 소품 종류, 구역 모양, 상호작용 추가 같은 커스터마이즈도 이 스킬로. "빌드", "실행해 줘", "로컬에서 열어 줘", "소품 추가", "기능 추가" / "build my world", "run it locally", "add a prop" 요청에 사용.
+description: 딸각verse 4단계 — 템플릿 엔진(three.js + Vite)을 프로젝트에 깔고 world.json·concept.json 대로 실제 3D 월드를 만들어 로컬에서 실행·확인한다. 새 소품 종류, 구역 모양, 상호작용 추가 같은 커스터마이즈도 이 스킬로. "빌드", "월드 만들어 줘", "실행해 줘", "로컬에서 열어 줘", "소품 추가", "기능 추가" / "build my world", "run it locally", "add a prop" 요청에 사용.
 ---
 
 # 4단계 · 월드 만들기 (mv-build)

@@ -1,6 +1,6 @@
 ---
 name: mv-deploy
-description: 딸각verse 6단계 — 빌드해서 Cloudflare Workers 정적 자산으로 https://<이름>.<계정>.workers.dev 에 공개한다. 공유 미리보기(OG 태그·파비콘), 원하면 내 도메인 연결까지. "배포", "공개", "링크 만들기", "도메인 연결" / "deploy", "publish", "workers.dev", "push to github" 요청에 사용.
+description: 딸각verse 6단계 — 빌드해서 Cloudflare Workers 정적 자산으로 https://<이름>.<계정>.workers.dev 에 공개한다. 공유 미리보기(OG 태그·파비콘), 원하면 내 도메인 연결까지. "배포", "배포해 줘", "공개", "링크 만들기", "도메인 연결" / "deploy", "publish", "workers.dev", "push to github" 요청에 사용.
 ---
 
 # 6단계 · 배포 (mv-deploy)
