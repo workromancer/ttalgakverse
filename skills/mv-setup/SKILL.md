@@ -16,8 +16,9 @@ description: 딸각verse 1단계 — 필요한 도구(Node.js, Supabase MCP, Clo
    - 없으면 (개발자가 아니어도 따라 할 수 있게 한 단계씩):
      1. Supabase 계정 만들기 — https://supabase.com 에서 **Start your project** → GitHub 또는 이메일로 가입 (무료).
      2. Claude 가 프로젝트 폴더에 연결 설정을 넣는다:
-        `claude mcp add --scope project --transport http supabase "https://mcp.supabase.com/mcp?features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment"`
+        `claude mcp add --scope project --transport http supabase https://mcp.supabase.com/mcp`
         (→ `.mcp.json` 에 저장됨. 개인 토큰(PAT)은 만들 필요 없음 — OAuth 로그인)
+        ⚠️ `read_only=true` 나 `features=` 로 범위를 좁히지 않는다 — Claude 가 프로젝트 만들기·DB 함수 적용·키 발급까지 대신 해야 하므로 쓰기 권한이 필요하다. `project_ref` 도 처음엔 붙이지 않는다 (프로젝트를 새로 만들어야 하니까).
      3. 사용자에게: Claude Code 를 껐다 켜고 `/mcp` 입력 → **supabase** 선택 → **Authenticate** → 브라우저가 열리면 조직(Organization)을 고르고 **Authorize Claude Code** 클릭 → "Authentication successful" 이 보이면 끝.
      4. 확인: `list_organizations` 가 결과를 돌려주면 성공.
    - 혼자 플레이만 할 거면 건너뛰어도 된다 → `steps.multiplayer.status = "skipped"` 예정임을 알려 둔다.
@@ -26,8 +27,9 @@ description: 딸각verse 1단계 — 필요한 도구(Node.js, Supabase MCP, Clo
    1. Cloudflare 계정 만들기 — https://dash.cloudflare.com/sign-up (무료, 이메일 인증).
    2. **Cloudflare API MCP 연결** (계정 확인·workers.dev 주소 만들기·배포 확인·도메인 연결을 Claude 가 대신 함):
       `claude mcp add --scope project --transport http cloudflare-api https://mcp.cloudflare.com/mcp`
-      → 사용자에게: Claude Code 재시작 → `/mcp` → **cloudflare-api** → **Authenticate** → 브라우저에서 Base scopes 는 **Read only** 를 고르고 **Continue** → 계정 확인 화면에서 **Authorize**. (읽기 전용이라 안전하고, 계정·배포 상태 확인에 충분. 더 필요하면 그때 Claude 가 추가 권한을 요청)
-      확인: MCP 의 `search`/`execute` 로 계정과 workers.dev 하위 도메인을 읽어 본다. 하위 도메인이 없으면 첫 `wrangler deploy` 때 등록 안내를 따르면 된다.
+      → 사용자에게: Claude Code 재시작 → `/mcp` → **cloudflare-api** → **Authenticate** → 브라우저에서 Base scopes 는 **Full access** 를 고르고 **Continue** → 계정 확인 화면에서 **Authorize**.
+      ⚠️ Minimal·Read only 를 고르면 Claude 가 workers.dev 주소 만들기·도메인 연결 같은 변경을 못 해서 중간에 막힌다. 권한은 언제든 Cloudflare 대시보드 My Profile → Access Management → Connected Applications 에서 끊을 수 있다고 안내한다.
+      확인: MCP 의 `search`/`execute` 로 계정과 workers.dev 하위 도메인을 읽어 본다. 하위 도메인이 없으면 이때 MCP 로 만들어 둔다 (대시보드를 헤맬 필요 없음).
    3. **wrangler 로그인** (사이트 파일 업로드 담당 — MCP 로 파일 수백 개를 올리는 건 비효율적이라 배포는 wrangler 가 함):
       사용자에게 `! npx wrangler login` 을 직접 실행하게 한다 → 브라우저에서 **Authorize** → 터미널에 "Successfully logged in". 확인은 `npx wrangler whoami`.
    - API 토큰을 직접 만들어 붙여 넣는 방식은 쓰지 않는다 (비밀 정보 노출 위험). 둘 다 OAuth 로그인.
