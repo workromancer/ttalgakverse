@@ -23,6 +23,7 @@ node <이 스킬 폴더>/scripts/doctor.mjs <프로젝트 폴더>
 | 포털이 안 됨 | 포털 좌표가 구역 안인지, 대상 id | `validate.mjs` |
 | 다른 사람이 안 보임 | doctor 의 multiplayer 줄, `.env` | `mv-multiplayer` 3·4번, dev 서버 재시작 |
 | 배포본만 안 됨 | 빌드 시점 `.env`, wrangler 설정 | 다시 build → deploy |
+| 동작은 하는데 마음에 안 듦 | doctor 의 📝 줄 | `mv-polish` (구조물이면 「구조물 다듬기」) |
 | `wrangler` 인증 오류 | `npx wrangler whoami` | 사용자가 `! npx wrangler login` |
 | Supabase 승인 창 만료 | — | 같은 호출 다시, 2분 안에 허용 |
 
@@ -34,4 +35,4 @@ node <이 스킬 폴더>/scripts/doctor.mjs <프로젝트 폴더>
 
 ## 끝나면
 
-고친 내용을 PROGRESS.md 에 "문제 → 원인 → 고친 것" 한 줄로 남기고, `next` 단계 스킬로 이어간다.
+고친 내용을 PROGRESS.md 에 "문제 → 원인 → 고친 것" 한 줄로 남기고, `next` 단계 스킬로 이어간다. doctor 가 "📝 쌓인 고칠 점" 을 알리면 `mv-polish` 로 먼저 처리한다.

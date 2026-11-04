@@ -32,6 +32,9 @@
 - `skyline: false` 둘레 도시 불빛 끄기 · `fog: [가까이, 멀리]` 멀리 있는 랜드마크가 잘 보이게
 
 ### 소품 `kind`
+
+> 아래는 엔진에 **기본으로 들어 있는 예시**다. 이 목록에 없는 건물·물건은 비슷한 걸로 때우지 말고 `src/props/<kind>.js` 로 새로 짓는다 (필드도 자유). 지형·날씨 같은 연출은 구역 `"scene": "<이름>"` + `src/scenes/<이름>.js`. → `docs/custom-code.md`
+
 공통: `x` `z` `rot`(도) `color` `scale` `text`
 
 | 분류 | kind (주요 필드) |

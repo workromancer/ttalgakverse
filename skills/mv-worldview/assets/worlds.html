@@ -14,7 +14,7 @@
   body { font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; background: #0d1014; color: #eef2f5; padding: 20px; }
   h1 { font-size: 22px; } .muted { opacity: .65; font-size: 13px; }
   .qa { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .qa div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
+  .qa > div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
   .qa b { display: block; font-size: 11px; opacity: .6; margin-bottom: 2px; }
   .qa .todo { opacity: .45; border-style: dashed; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-top: 18px; }
@@ -35,6 +35,13 @@
   .card.chosen { outline: 3px solid #50fa7b; } .chosen-msg { color: #50fa7b; font-weight: 800; }
   code { background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 6px; }
   .empty { margin-top: 40px; text-align: center; opacity: .7; }
+  .qa .now { opacity: 1; border: 1px solid #6c5ce7; background: rgba(108,92,231,.12); max-width: 640px; flex-basis: 100%; }
+  .qa .now .ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .qa .now .ex button { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; border-radius: 18px; padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .qa .now .ex button:hover { background: rgba(108,92,231,.35); }
+  .qa .now .ans { display: flex; gap: 6px; } .qa .now input { flex: 1; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
+  .qa .now .ans button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .qa .now .hint { font-size: 11px; opacity: .6; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -75,7 +82,19 @@ function map(w) {
 async function render() {
   const [qa, drafts, choice] = await Promise.all([load('interview.json', []), load('drafts.json', []), load('choice.json', null)]);
   document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
-  document.getElementById('qa').innerHTML = (qa || []).map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+  // 인터뷰: 지금 물어보는 질문(답 안 한 첫 질문)은 예시를 눌러 고르거나 직접 써서 보드에서 바로 답할 수 있음 → /__answer → Claude 가 이어서 진행
+  { const now = (qa || []).findIndex((x) => !x.a);
+    const QA = document.getElementById('qa');
+    QA.innerHTML = (qa || []).map((x, i) => i === now
+      ? `<div class="now"><b>지금 질문 · ${i + 1}/${qa.length}</b>${esc(x.q)}${(x.ex || []).length ? `<div class="ex">${x.ex.map((e) => `<button data-ex="${esc(e)}">${esc(e)}</button>`).join('')}</div>` : ''}<div class="ans"><input id="ans" placeholder="예시를 눌러 고르거나, 섞거나, 자유롭게 써 주세요" /><button id="ans-send">답하기</button></div><div class="hint">채팅으로 답해도 돼요 · 모르겠으면 "추천해 줘"</div></div>`
+      : `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+    const inp = document.getElementById('ans');
+    QA.querySelectorAll('[data-ex]').forEach((b) => b.addEventListener('click', () => { inp.value = inp.value ? `${inp.value} + ${b.dataset.ex}` : b.dataset.ex; inp.focus(); }));
+    const send = async () => { const a = inp.value.trim(); if (!a) return inp.focus(); const btn = document.getElementById('ans-send'); btn.disabled = true; btn.textContent = '보내는 중…';
+      const r = await fetch('/__answer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board: 'worlds', i: now, a }) }).catch(() => null);
+      if (!r?.ok) { btn.disabled = false; btn.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 답해 주세요.'); } else btn.textContent = '✅ 전달됨 — Claude 가 반영 중…'; };
+    document.getElementById('ans-send')?.addEventListener('click', send);
+    inp?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) send(); }); }
   const g = document.getElementById('grid');
   if (!drafts.length) { g.innerHTML = '<div class="empty">✍️ 인터뷰 답을 바탕으로 초안을 그리는 중이에요…</div>'; return; }
   g.innerHTML = drafts.map((d, k) => {
@@ -83,6 +102,7 @@ async function render() {
     return `<div class="card${String(choice?.id) === String(d.id || k + 1) ? ' chosen' : ''}"><div class="head"><span class="tag">초안 ${esc(d.id || k + 1)}</span><h2>${esc(w.title)}</h2><div class="pitch">${esc(d.pitch || w.tagline)}</div></div>
       <div class="who"><div><b>누가 오나요</b>${esc(d.audience || '-')}</div><div><b>와서 하는 일</b>${esc((d.activities || []).join(' · ') || '-')}</div></div>
       ${map(w)}
+      ${(d.build || []).length ? `<div class="muted" style="margin:6px 0">🧱 이 세계만을 위해 새로 지을 것: ${d.build.map((b) => esc(b.desc || b.kind || b.scene)).join(' · ')}</div>` : ''}
       <div class="zones">${(w.zones || []).map((z, i) => `<div class="z"><div class="dot" style="background:${COLORS[i % COLORS.length]}"></div><div><b>${esc(z.name)}</b> <span class="muted">${z.shape === 'room' ? '실내' : '야외'} · ${(z.size || []).join('×')}m</span><div>${esc(z.desc || '')}</div><div class="props">${[...new Set((z.props || []).map((p) => ICON[p.kind] || '📦'))].join(' ')} ${(z.portals || []).map((p) => `→ ${esc(p.label || (w.zones || []).find((x) => x.id === p.to)?.name || p.to)}`).join(' ')}</div></div></div>`).join('')}</div>
       <div class="pick">${String(choice?.id) === String(d.id || k + 1) ? `<span class="chosen-msg">✅ 골랐어요 — Claude 에게 전달됐어요${choice.note ? ` (고칠 점: ${esc(choice.note)})` : ''}</span>` : `<input placeholder="고칠 점 (선택) 예: 호수 하나 추가" data-note="${esc(d.id || k + 1)}" /><button data-pick="${esc(d.id || k + 1)}">이 초안으로 할게요</button><div class="hint">채팅으로 <code>초안 ${esc(d.id || k + 1)}로 할게</code> 라고 해도 돼요</div>`}</div></div>`;
   }).join('');

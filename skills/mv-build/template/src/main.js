@@ -6,9 +6,19 @@
 import * as THREE from 'three';
 import world from '../world/world.json';     // 세계관·구역 (mv-worldview)
 import concept from '../world/concept.json'; // 색·분위기 (mv-concept)
-import { Character, setTagColor } from './character.js';
+import { Character, setTagColor, registerStyles, STYLES } from './character.js';
 import { createNet } from './net.js';
-import { makeProps, floorTexture, rugTexture, checkTexture } from './props.js';
+import { makeProps, byName, floorTexture, rugTexture, checkTexture } from './props.js';
+
+// ---------- 프로젝트 전용 코드 (사용자 말을 듣고 Claude 가 새로 짓는 것) ----------
+//  파일만 넣으면 자동으로 불러옴. 기본 소품·캐릭터는 메뉴가 아니라 예시 — 같은 이름이면 프로젝트 것이 이김
+//  src/avatars/<id>.js  캐릭터 스타일   export default { label, icon, build(ch, M, kit) }      → concept.json avatar.style
+//  src/props/<kind>.js  구조물·소품     export default (p, kit) => ({ group, solid })           → world.json props[].kind
+//  src/scenes/<name>.js 구역 연출       export default (ctx) => ({ update?(dt, t), dispose?() })  → world.json zone.scene (또는 world.scene = 모든 구역)
+//  이름이 _ 로 시작하는 파일은 무시 (초안·보관용)
+registerStyles(byName(import.meta.glob(['./avatars/*.js', '!./avatars/_*.js'], { eager: true })));
+const CUSTOM_PROPS = byName(import.meta.glob(['./props/*.js', '!./props/_*.js'], { eager: true }));
+const SCENES = byName(import.meta.glob(['./scenes/*.js', '!./scenes/_*.js'], { eager: true }));
 
 const $ = (id) => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -77,7 +87,7 @@ function freeSpot(x, z) {
 
 // ---------- 구역 만들기 ----------
 // 소품: tree · bench · lamp · sign · box · rock · flowers · fountain · kiosk  + props.js (shop shelf books table lantern planter crate cat stage chair rug stringlights)
-const EXTRA = makeProps({ P, concept, lam, glow, tex: { sign: signTexture, rug: rugTexture, check: checkTexture } });
+const EXTRA = makeProps({ P, concept, lam, glow, tex: { sign: signTexture, rug: rugTexture, check: checkTexture }, custom: CUSTOM_PROPS });
 function buildProp(p, zone) {
   const g = new THREE.Group(); g.position.set(p.x, 0, p.z); g.rotation.y = ((p.rot || 0) * Math.PI) / 180;
   if (EXTRA[p.kind]) { // shop shelf books table lantern planter crate cat stage chair rug stringlights
@@ -143,7 +153,7 @@ function rotOff(sd, p, rot) {
   return { x: p.x + dx * c + dz * s, z: p.z - dx * s + dz * c, rot };
 }
 
-let zone = null, zoneGroup = null, solids = [], portals = [], waters = [];
+let zone = null, zoneGroup = null, solids = [], portals = [], waters = [], zoneFx = [];
 // 배경 건물 창문 무늬
 const winTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 64, 64);
   for (let y = 0; y < 8; y++) for (let x = 0; x < 4; x++) if (Math.random() < 0.45) { g.fillStyle = '#fff'; g.fillRect(x * 16 + 4, y * 8 + 2, 8, 4); }
@@ -199,7 +209,7 @@ function buildZone(z) {
       }
     }
   }
-  for (const p of z.props || []) { const r = buildProp(p, z); zoneGroup.add(r.group); solids.push(...r.solid); }
+  (z.props || []).forEach((p, i) => { const r = buildProp(p, z); r.group.userData.prop = { zone: z.id, index: i, kind: p.kind, text: p.text }; zoneGroup.add(r.group); solids.push(...r.solid); }); // userData.prop: 📝 구조물 콕 집기용
   // 포털: 빛나는 문 + 이름표
   for (const pt of z.portals || []) {
     const to = world.zones.find((x) => x.id === pt.to); if (!to) continue;
@@ -212,6 +222,14 @@ function buildZone(z) {
     g.add(frame, face, label); zoneGroup.add(g);
     portals.push({ ...pt, face, toZone: to });
   }
+  // 구역 연출 (src/scenes/*.js): 지형·날씨·빛·움직이는 것 등 엔진 기본 그리기로 안 되는 것
+  for (const fx of zoneFx) fx.dispose?.();
+  zoneFx = [];
+  for (const name of [...[].concat(world.scene || []), ...[].concat(z.scene || [])]) {
+    const fn = SCENES[name]; if (!fn) { console.warn(`scene '${name}' 없음 → src/scenes/${name}.js`); continue; }
+    try { zoneFx.push(fn({ THREE, group: zoneGroup, scene, camera, renderer, zone: z, world, P, concept, lam, glow, textSprite, solid: (sd) => solids.push(sd), player }) || {}); }
+    catch (e) { console.error(`scene '${name}' 오류`, e); }
+  }
   zone = z;
   scene.fog.near = z.fog?.[0] ?? 50; scene.fog.far = z.fog?.[1] ?? Math.max(180, Math.max(W, D) * 2.2 + 140); // 큰 구역·배경 타워가 안개에 안 묻히게
   $('zone').textContent = z.name;
@@ -221,7 +239,11 @@ function buildZone(z) {
 
 // ---------- 플레이어 ----------
 const player = { x: 0, z: 0, yaw: 0, speed: 0, jumpH: 0, vy: 0 };
-const avatar = new Character(C(concept.avatar?.me || '#fff3dc'), '나'); scene.add(avatar);
+// 캐릭터: concept.json avatar.style (기본), avatar.styles 를 여러 개 두면 방문자가 🎭 로 골라 씀
+const AV = concept.avatar || {};
+const STY = (AV.styles?.length ? AV.styles : [AV.style || 'bunny']).filter((id) => STYLES[id]);
+if (!STY.length) STY.push('bunny');
+let avatar = new Character(C(AV.me || '#fff3dc'), '나', STY[0]); scene.add(avatar);
 const R = 0.45;
 function blocked(x, z) {
   const [W, D] = zone.size || [40, 40];
@@ -238,7 +260,7 @@ function blocked(x, z) {
 
 // ---------- 입력 ----------
 const keys = new Set();
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys.add(e.code); if (e.code === 'Space' && player.jumpH === 0) player.vy = 6; });
+addEventListener('keydown', (e) => { if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return; keys.add(e.code); if (e.code === 'Space' && player.jumpH === 0) player.vy = 6; });
 addEventListener('keyup', (e) => keys.delete(e.code));
 const cam = { yaw: Math.PI, pitch: 0.35, dist: 7, manualAt: -1e9 };
 const joy = { x: 0, y: 0, id: null, cx: 0, cy: 0 };
@@ -280,7 +302,7 @@ const remotes = new Map();
 const net = createNet({
   onState(m) {
     let r = remotes.get(m.id);
-    if (!r || r.name !== m.n) { if (r) scene.remove(r.ch); const ch = new Character(C(m.c ?? '#fff3dc'), m.n); scene.add(ch); r = { ch, name: m.n, pos: new THREE.Vector3(m.p[0], 0, m.p[1]), yaw: m.r }; remotes.set(m.id, r); }
+    if (!r || r.name !== m.n || r.k !== m.k) { if (r) scene.remove(r.ch); const ch = new Character(C(m.c ?? '#fff3dc'), m.n, m.k || STY[0]); scene.add(ch); r = { ch, name: m.n, k: m.k, pos: r?.pos || new THREE.Vector3(m.p[0], 0, m.p[1]), yaw: m.r }; remotes.set(m.id, r); }
     r.tgt = m; r.last = performance.now();
   },
   onLeave(id) { if (id === '*') { for (const r of remotes.values()) scene.remove(r.ch); remotes.clear(); return; } const r = remotes.get(id); if (r) { scene.remove(r.ch); remotes.delete(id); } },
@@ -288,7 +310,7 @@ const net = createNet({
 });
 const r2 = (v) => Math.round(v * 100) / 100;
 let activity = null, actUntil = 0;
-function sendState() { net.send({ p: [r2(player.x), r2(player.z)], r: r2(player.yaw), mv: player.speed > 0 ? 1 : 0, a: activity || 0, j: r2(player.jumpH) }); }
+function sendState() { net.send({ p: [r2(player.x), r2(player.z)], r: r2(player.yaw), mv: player.speed > 0 ? 1 : 0, a: activity || 0, j: r2(player.jumpH), k: avatar.style }); }
 function updateRemotes(dt) {
   const now = performance.now();
   for (const [id, r] of remotes) {
@@ -328,6 +350,16 @@ $('btn-name').addEventListener('click', () => {
   if (v) { net.setName(v); avatar.setName(net.me.name); toast(`닉네임: ${net.me.name}`); }
 });
 avatar.setName(net.me.name);
+function setStyle(id) {
+  const old = avatar; avatar = new Character(C(AV.me || '#fff3dc'), null, id); avatar.setName(net.me.name);
+  avatar.position.copy(old.position); avatar.rotation.y = old.rotation.y; scene.remove(old); scene.add(avatar);
+  net.me.style = id; net.save();
+}
+if (STY.includes(net.me.style) && net.me.style !== avatar.style) setStyle(net.me.style);
+if (STY.length > 1) { // 🎭 캐릭터 바꾸기 (월드 주인이 여러 스타일을 열어 둔 경우)
+  const b = document.createElement('button'); b.title = '캐릭터 바꾸기'; b.textContent = '🎭'; $('dock').insertBefore(b, $('btn-name'));
+  b.addEventListener('click', () => { const id = STY[(STY.indexOf(avatar.style) + 1) % STY.length]; setStyle(id); toast(`${STYLES[id].icon || '🎭'} ${STYLES[id].label || id}`); });
+}
 
 // ---------- 시작 ----------
 const saved = (() => { try { return JSON.parse(localStorage.getItem(`${world.slug}.at`)); } catch { return null; } })();
@@ -381,10 +413,13 @@ function frame() {
   camera.position.set(cx, Math.max(cy, 0.35), cz); // 땅 밑으로 안 내려감 (올려다보기)
   camera.lookAt(player.x, 1 + player.jumpH * 0.8, player.z);
   sun.position.set(player.x + 30, 60, player.z + 20); sun.target.position.set(player.x, 0, player.z); // 그림자가 늘 내 주변에
+  for (const fx of zoneFx) fx.update?.(dt, clock.elapsedTime);
   sendState(); updateRemotes(dt);
   if (toastT > 0 && (toastT -= dt) <= 0) $('toast').classList.remove('on');
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-window.__mv = { player, cam, world, get zone() { return zone; }, enterZone, net, remotes, avatar };
+window.__mv = { player, cam, world, get zone() { return zone; }, enterZone, net, remotes, get avatar() { return avatar; }, setStyle };
+// 📝 고칠 점 남기기 버튼 — 개발 서버에서만 (배포 빌드에서는 이 줄이 통째로 빠짐)
+if (import.meta.env.DEV) import('./feedback.js').then((m) => m.mountFeedback({ renderer, scene, camera, player, cam, toast, get zone() { return zone; }, get zoneGroup() { return zoneGroup; } }));

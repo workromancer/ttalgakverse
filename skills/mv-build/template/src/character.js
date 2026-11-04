@@ -3,69 +3,137 @@ import * as THREE from 'three';
 export const TAG = { rgb: '0,168,77' };
 export const setTagColor = (hex) => { const c = parseInt(String(hex).replace('#', ''), 16); TAG.rgb = `${c >> 16 & 255},${c >> 8 & 255},${c & 255}`; };
 
-// 동글동글한 마스코트 캐릭터 (모든 캐릭터 공통 모양)
+// 캐릭터 스타일 — concept.json 의 avatar.style (mv-concept 의 캐릭터 단계에서 사용자와 함께 정함)
+//  모든 스타일이 같은 뼈대(bodyPivot·hands·feet·top)를 써서 걷기·이모트·액세서리·멀티플레이가 그대로 동작한다.
+//  새 스타일은 여기 말고 src/avatars/<id>.js 에 { label, icon, build(ch, M, kit) } 로 (아래 registerStyles). build 는 ch.bodyPivot 에 몸·얼굴을 붙이고
+//  필요하면 ch.rig(손발 위치)·ch.accT(액세서리 위치·크기)·ch.float(떠 있기)·ch.top(흔들리는 머리 장식)을 바꾼다.
 const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
+const glowM = (c) => new THREE.MeshBasicMaterial({ color: c });
+const add = (parent, geo, mat, x = 0, y = 0, z = 0, sx = 1, sy = 1, sz = 1) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.scale.set(sx, sy, sz); parent.add(o); return o; };
+const sph = (r, w = 16, h = 12) => new THREE.SphereGeometry(r, w, h);
+// 공통 얼굴: 눈(하이라이트)·볼터치·입. f = { y, z, dx, blush, mouth }
+function face(ch, M, f = {}) {
+  const { y = 0.55, z = 0.385, dx = 0.13, blush = true, mouth = true, eyeMat = M.dark } = f;
+  for (const s of [-1, 1]) {
+    add(ch.bodyPivot, sph(0.05, 14, 10), eyeMat, s * dx, y, z, 0.85, 1.1, 0.5);
+    if (eyeMat === M.dark) add(ch.bodyPivot, sph(0.016, 8, 6), M.white, s * dx + 0.015, y + 0.025, z + 0.025);
+    if (blush) { const b = add(ch.bodyPivot, new THREE.CircleGeometry(0.055, 16), M.pink, s * (dx + 0.12), y - 0.08, z - 0.035, 1, 0.6, 1); b.rotation.y = s * 0.55; }
+  }
+  if (mouth) { const m = add(ch.bodyPivot, new THREE.TorusGeometry(0.03, 0.009, 6, 12, Math.PI), M.dark, 0, y - 0.08, z + 0.01); m.rotation.z = Math.PI; }
+}
+const roundBody = (ch, M, sx = 1.05, sy = 0.95) => add(ch.bodyPivot, sph(0.42, 28, 20), M.skin, 0, 0.46, 0, sx, sy, 0.95);
+const sprout = (ch, color = 0x3fbf6f) => {
+  const leaf = lam(color), g = new THREE.Group();
+  add(g, new THREE.CylinderGeometry(0.015, 0.015, 0.1, 6), leaf, 0, 0.05, 0);
+  const l1 = add(g, sph(0.06, 10, 8), leaf, -0.06, 0.1, 0, 1.4, 0.35, 0.8); l1.rotation.z = 0.4;
+  const l2 = add(g, sph(0.06, 10, 8), leaf, 0.06, 0.1, 0, 1.4, 0.35, 0.8); l2.rotation.z = -0.4;
+  g.position.y = 0.86; ch.top = g; ch.bodyPivot.add(g);
+};
+
+export const STYLES = {
+  bunny: { label: '말랑 토끼', icon: '🐰', build(ch, M) {
+    roundBody(ch, M);
+    for (const s of [-1, 1]) {
+      const ear = new THREE.Group();
+      add(ear, new THREE.CapsuleGeometry(0.1, 0.14, 6, 12), M.skin);
+      add(ear, new THREE.CapsuleGeometry(0.055, 0.1, 4, 10), lam(0xffc2cf), 0, 0, 0.055, 1, 1, 0.5);
+      ear.position.set(s * 0.22, 0.86, -0.02); ear.rotation.z = -s * 0.35; ch.bodyPivot.add(ear);
+    }
+    sprout(ch); face(ch, M);
+  } },
+  cat: { label: '골목 고양이', icon: '🐱', build(ch, M) {
+    roundBody(ch, M, 1.08, 0.92);
+    for (const s of [-1, 1]) {
+      const e = add(ch.bodyPivot, new THREE.ConeGeometry(0.12, 0.22, 4), M.skin, s * 0.22, 0.86, 0); e.rotation.set(0, Math.PI / 4, -s * 0.3);
+      const ie = add(ch.bodyPivot, new THREE.ConeGeometry(0.065, 0.13, 4), lam(0xffc2cf), s * 0.22, 0.85, 0.05); ie.rotation.set(0, Math.PI / 4, -s * 0.3);
+      for (const k of [-1, 1]) { const w = add(ch.bodyPivot, new THREE.BoxGeometry(0.16, 0.008, 0.008), M.dark, s * 0.3, 0.47 + k * 0.025, 0.36); w.rotation.z = s * k * 0.12; }
+    }
+    face(ch, M, { blush: false, mouth: false });
+    for (const s of [-1, 1]) { const m = add(ch.bodyPivot, new THREE.TorusGeometry(0.022, 0.008, 6, 10, Math.PI), M.dark, s * 0.022, 0.47, 0.395); m.rotation.z = Math.PI; } // ω 입
+    add(ch.bodyPivot, sph(0.022, 8, 6), lam(0xff8fa8), 0, 0.5, 0.405);
+    const tail = add(ch.bodyPivot, new THREE.TorusGeometry(0.16, 0.04, 8, 16, Math.PI * 1.2), M.skin, 0, 0.42, -0.42); tail.rotation.set(0, Math.PI / 2, 0.6);
+    ch.top = tail;
+  } },
+  bear: { label: '포근 곰', icon: '🐻', build(ch, M) {
+    roundBody(ch, M);
+    for (const s of [-1, 1]) { add(ch.bodyPivot, sph(0.11, 14, 10), M.skin, s * 0.27, 0.8, -0.02, 1, 1, 0.7); add(ch.bodyPivot, sph(0.06, 10, 8), lam(0x8b6a4e), s * 0.27, 0.8, 0.04, 1, 1, 0.4); }
+    add(ch.bodyPivot, sph(0.13, 16, 12), lam(0xf4e2c8), 0, 0.46, 0.33, 1.2, 0.85, 0.7); // 주둥이
+    add(ch.bodyPivot, sph(0.035, 10, 8), M.dark, 0, 0.5, 0.42, 1.3, 0.9, 0.8);
+    face(ch, M, { y: 0.6, dx: 0.14, mouth: false });
+    ch.top = new THREE.Group(); ch.bodyPivot.add(ch.top);
+  } },
+  chick: { label: '삐약 병아리', icon: '🐥', build(ch, M) {
+    roundBody(ch, M, 1, 1);
+    const beak = add(ch.bodyPivot, new THREE.ConeGeometry(0.06, 0.12, 8), lam(0xff9f1c), 0, 0.47, 0.43); beak.rotation.x = Math.PI / 2;
+    face(ch, M, { mouth: false });
+    const tuft = new THREE.Group();
+    for (const k of [-1, 0, 1]) { const f = add(tuft, new THREE.CapsuleGeometry(0.025, 0.1, 4, 8), M.skin, k * 0.04, 0.05, 0); f.rotation.z = -k * 0.5; }
+    tuft.position.y = 0.86; ch.top = tuft; ch.bodyPivot.add(tuft);
+    ch.handShape = [1.4, 0.6, 0.8]; ch.footColor = 0xff9f1c; // 날개 손, 주황 발
+  } },
+  ghost: { label: '둥실 유령', icon: '👻', build(ch, M) {
+    add(ch.bodyPivot, new THREE.CapsuleGeometry(0.36, 0.3, 10, 20), M.skin, 0, 0.55, 0, 1.05, 1, 0.95);
+    for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; add(ch.bodyPivot, sph(0.11, 10, 8), M.skin, Math.sin(a) * 0.28, 0.2, Math.cos(a) * 0.28); }
+    face(ch, M, { y: 0.66, z: 0.35, dx: 0.12 });
+    ch.top = new THREE.Group(); ch.bodyPivot.add(ch.top);
+    ch.float = 0.18; ch.noFeet = true; ch.accT = { y: 0.12, s: 0.95 };
+  } },
+  robot: { label: '반짝 로봇', icon: '🤖', build(ch, M) {
+    add(ch.bodyPivot, new THREE.BoxGeometry(0.7, 0.66, 0.6), M.skin, 0, 0.48, 0);
+    add(ch.bodyPivot, new THREE.BoxGeometry(0.54, 0.32, 0.02), M.dark, 0, 0.55, 0.305);
+    const eye = glowM(0x5fe0ff);
+    for (const s of [-1, 1]) add(ch.bodyPivot, new THREE.BoxGeometry(0.08, 0.1, 0.01), eye, s * 0.12, 0.57, 0.318);
+    add(ch.bodyPivot, new THREE.BoxGeometry(0.14, 0.025, 0.01), eye, 0, 0.47, 0.318);
+    for (const s of [-1, 1]) add(ch.bodyPivot, new THREE.CylinderGeometry(0.07, 0.07, 0.06, 12), lam(0x9aa3ad), s * 0.37, 0.55, 0).rotation.z = Math.PI / 2;
+    const ant = new THREE.Group();
+    add(ant, new THREE.CylinderGeometry(0.012, 0.012, 0.16, 6), lam(0x9aa3ad), 0, 0.08, 0);
+    add(ant, sph(0.04, 10, 8), glowM(0xff5d73), 0, 0.17, 0);
+    ant.position.y = 0.81; ch.top = ant; ch.bodyPivot.add(ant);
+    ch.handBox = true; ch.footColor = 0x6b7480; ch.accT = { y: 0.02, s: 1 };
+  } },
+  kid: { label: '꼬마 사람', icon: '🧒', build(ch, M) {
+    // 몸(옷) = 플레이어 색, 얼굴은 살구색, 머리카락
+    const skin = lam(0xf6d2b0);
+    add(ch.bodyPivot, new THREE.CapsuleGeometry(0.2, 0.18, 8, 16), M.skin, 0, 0.36, 0, 1.15, 1, 0.95);
+    add(ch.bodyPivot, sph(0.3, 24, 18), skin, 0, 0.8, 0);
+    const hair = lam(0x3a2a22);
+    add(ch.bodyPivot, new THREE.SphereGeometry(0.315, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hair, 0, 0.82, -0.02).rotation.x = -0.35;
+    face(ch, M, { y: 0.78, z: 0.275, dx: 0.1 });
+    ch.top = add(ch.bodyPivot, sph(0.06, 10, 8), hair, 0.08, 1.1, -0.05); // 삐친 머리
+    ch.handMat = skin; ch.footColor = 0x3a3f47; ch.rig = { hx: 0.3, hy: 0.36, fx: 0.11 };
+    ch.accT = { y: 0.47, s: 0.72 }; // 액세서리를 작은 머리 위치로
+  } },
+};
+// 캐릭터를 짓는 도구 묶음 — 프로젝트 전용 스타일(src/avatars/<id>.js)이 import 없이 쓴다
+export const KIT = { THREE, lam, glow: glowM, add, sph, face, roundBody, sprout };
+// 프로젝트 전용 스타일 등록: src/avatars/<id>.js 가 export default { label, icon, build(ch, M, kit) }
+//  사용자가 말한 캐릭터를 Claude 가 새로 짓는 곳. 위 STYLES 는 메뉴가 아니라 "이렇게 지으면 된다" 는 예시
+export function registerStyles(map = {}) { for (const [id, def] of Object.entries(map)) if (def?.build) STYLES[id] = def; return STYLES; }
 
 export class Character extends THREE.Group {
-  constructor(color = 0xfff3dc, name = null) {
+  constructor(color = 0xfff3dc, name = null, style = 'bunny') {
     super();
-    const skin = lam(color);
-    const dark = new THREE.MeshBasicMaterial({ color: 0x2a2320 });
-    const white = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const pink = new THREE.MeshBasicMaterial({ color: 0xff9db5, transparent: true, opacity: 0.85 });
-    const innerEar = lam(0xffc2cf);
-    const leaf = lam(0x3fbf6f);
-    const foot = lam(0xf4cf9a);
-
+    this.style = STYLES[style] ? style : 'bunny';
+    const M = { skin: lam(color), dark: new THREE.MeshBasicMaterial({ color: 0x2a2320 }), white: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      pink: new THREE.MeshBasicMaterial({ color: 0xff9db5, transparent: true, opacity: 0.85 }) };
     // 몸 전체 피벗 (통통 튀기 / 찌그러지기)
     this.bodyPivot = new THREE.Group();
     this.add(this.bodyPivot);
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.42, 28, 20), skin);
-    body.scale.set(1.05, 0.95, 0.95); body.position.y = 0.46;
-    this.bodyPivot.add(body);
-
-    // 귀
-    for (const s of [-1, 1]) {
-      const ear = new THREE.Group();
-      const e = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.14, 6, 12), skin);
-      const ie = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.1, 4, 10), innerEar);
-      ie.position.z = 0.055; ie.scale.z = 0.5;
-      ear.add(e, ie);
-      ear.position.set(s * 0.22, 0.86, -0.02); ear.rotation.z = -s * 0.35;
-      this.bodyPivot.add(ear);
-    }
-    // 머리 위 새싹 (2호선 초록)
-    const sprout = new THREE.Group();
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.1, 6), leaf); stem.position.y = 0.05;
-    const l1 = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), leaf); l1.scale.set(1.4, 0.35, 0.8); l1.position.set(-0.06, 0.1, 0); l1.rotation.z = 0.4;
-    const l2 = l1.clone(); l2.position.x = 0.06; l2.rotation.z = -0.4;
-    sprout.add(stem, l1, l2); sprout.position.y = 0.86;
-    this.sprout = sprout;
-    this.bodyPivot.add(sprout);
-
-    // 얼굴
-    for (const s of [-1, 1]) {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 10), dark);
-      eye.scale.set(0.85, 1.1, 0.5); eye.position.set(s * 0.13, 0.55, 0.385);
-      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 6), white);
-      hl.position.set(s * 0.13 + 0.015, 0.575, 0.41);
-      const blush = new THREE.Mesh(new THREE.CircleGeometry(0.055, 16), pink);
-      blush.position.set(s * 0.25, 0.47, 0.35); blush.rotation.y = s * 0.55; blush.scale.y = 0.6;
-      this.bodyPivot.add(eye, hl, blush);
-    }
-    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 6, 12, Math.PI), dark);
-    mouth.position.set(0, 0.47, 0.395); mouth.rotation.z = Math.PI;
-    this.bodyPivot.add(mouth);
+    this.rig = { hx: 0.44, hy: 0.38, fx: 0.17 }; this.accT = { y: 0, s: 1 }; this.float = 0;
+    STYLES[this.style].build(this, M, KIT);
+    this.sprout = this.top || new THREE.Group(); // (예전 이름 호환) 걸을 때 흔들리는 머리 장식
 
     // 작은 손 / 발
+    const r = this.rig;
     this.hands = [-1, 1].map((s) => {
-      const h = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), skin);
-      h.scale.set(0.8, 1, 0.8); h.position.set(s * 0.44, 0.38, 0.05);
+      const h = this.handBox ? new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.15, 0.13), lam(0x9aa3ad)) : new THREE.Mesh(sph(0.09, 12, 10), this.handMat || M.skin);
+      h.scale.set(...(this.handShape || [0.8, 1, 0.8])); h.position.set(s * r.hx, r.hy, 0.05);
       this.bodyPivot.add(h); return h;
     });
     this.feet = [-1, 1].map((s) => {
-      const f = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), foot);
-      f.scale.set(1, 0.55, 1.3); f.position.set(s * 0.17, 0.05, 0.05);
+      const f = this.handBox ? new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.26), lam(this.footColor)) : new THREE.Mesh(sph(0.11, 12, 10), lam(this.footColor ?? 0xf4cf9a));
+      if (!this.handBox) f.scale.set(1, 0.55, 1.3);
+      f.position.set(s * r.fx, 0.05, 0.05); f.visible = !this.noFeet;
       this.add(f); return f;
     });
 
@@ -83,8 +151,9 @@ export class Character extends THREE.Group {
     this.accKey = key;
     if (this.accGroup) this.bodyPivot.remove(this.accGroup);
     this.accGroup = new THREE.Group();
+    this.accGroup.position.y = this.accT.y; this.accGroup.scale.setScalar(this.accT.s);
     for (const slot of ACC_SLOTS) { const id = acc[slot]; const def = ACC[slot]?.find((a) => a.id === id); if (def?.build) this.accGroup.add(def.build()); }
-    this.sprout.visible = !['cap', 'beanie', 'crown'].includes(acc.head);
+    this.sprout.visible = this.style === 'cat' || !['cap', 'beanie', 'crown'].includes(acc.head);
     this.bodyPivot.add(this.accGroup);
   }
   setName(name) {
@@ -141,27 +210,28 @@ export class Character extends THREE.Group {
     if (this.amt > 0.02) this.walk += dt * (6 + speed * 2.5);
     const a = this.amt, w = this.walk, bp = this.bodyPivot;
     this.sprout.rotation.z = Math.sin(this.t * 3 + w) * 0.15;
+    const r = this.rig, fl = this.float ? this.float + Math.sin(this.t * 2.2) * 0.05 : 0; // 유령은 둥실
     if (sitting) {
       bp.position.set(0, 0, -0.02); bp.rotation.set(-0.08, 0, 0);
       bp.scale.set(1, 1 + Math.sin(this.t * 2) * 0.015, 1);
-      this.feet.forEach((f, i) => f.position.set((i ? 1 : -1) * 0.17, 0.1, 0.36));
-      this.hands.forEach((h, i) => h.position.set((i ? 1 : -1) * 0.38, 0.3, 0.2));
+      this.feet.forEach((f, i) => f.position.set((i ? 1 : -1) * r.fx, 0.1, 0.36));
+      this.hands.forEach((h, i) => h.position.set((i ? 1 : -1) * (r.hx - 0.06), r.hy - 0.08, 0.2));
       this.shadow.visible = false;
       return;
     }
     this.shadow.visible = true;
     const hop = Math.abs(Math.sin(w)) * 0.09 * a;
     const squash = 1 - Math.cos(w * 2) * 0.05 * a + Math.sin(this.t * 2.4) * 0.02 * (1 - a);
-    bp.position.set(0, hop, 0);
+    bp.position.set(0, hop + fl, 0);
     bp.scale.set(1 + (1 - squash) * 0.6, squash, 1 + (1 - squash) * 0.6);
     bp.rotation.set(0.06 * a, 0, Math.sin(w) * 0.1 * a);
     this.feet.forEach((f, i) => {
       const ph = w + (i ? Math.PI : 0);
-      f.position.set((i ? 1 : -1) * 0.17, 0.05 + Math.max(0, Math.sin(ph)) * 0.07 * a, 0.05 + Math.cos(ph) * 0.14 * a);
+      f.position.set((i ? 1 : -1) * r.fx, 0.05 + Math.max(0, Math.sin(ph)) * 0.07 * a, 0.05 + Math.cos(ph) * 0.14 * a);
     });
     this.hands.forEach((h, i) => {
       const ph = w + (i ? 0 : Math.PI);
-      h.position.set((i ? 1 : -1) * 0.44, 0.38 + Math.sin(this.t * 2.4) * 0.01, 0.05 + Math.cos(ph) * 0.1 * a);
+      h.position.set((i ? 1 : -1) * r.hx, r.hy + fl + Math.sin(this.t * 2.4) * 0.01, 0.05 + Math.cos(ph) * 0.1 * a);
     });
   }
 }

@@ -44,11 +44,25 @@ You don't need slash commands — **just say it in chat** and Claude picks the r
 | 0 | "I want to build a metaverse" | `metaverse` | Guide — checks progress and routes to the next step |
 | 1 | "Am I ready?" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare MCP** + wrangler, following the official docs ([Supabase](https://supabase.com/docs/guides/ai-tools/mcp) · [Cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)) — just browser clicks |
 | 2 | "Let's design the world" | `mv-worldview` | 🎙️ interview → 🔴 live world drafts (zone map, portals) → pick |
-| 3 | "Let's pick the mood" | `mv-concept` | 🎙️ mood interview → 🔴 three live 3D concepts → pick or mix |
+| 3 | "Let's pick the mood", "design my character" | `mv-concept` | 🎙️ mood interview → 🔴 three live 3D concepts → pick or mix → 🧸 your described character built fresh, shown walking on a live board |
 | 4 | "Build the world" | `mv-build` | Real world on a three.js engine, run locally (`npm run dev`) |
 | 5 | "Let my friends join" | `mv-multiplayer` | Supabase project & keys; people in the same zone see each other |
 | 6 | "Deploy it" | `mv-deploy` | Publish to `*.workers.dev` (+ custom domain, + private GitHub repo) |
+| 🔁 | "I don't like it", "the building looks off", "polish it" | `mv-polish` | Iterate after it's built — Claude points out weak spots first and asks with concrete options → fixes → before/after → asks again. Structures get a photo-comparison workbench |
 | 🩺 | "I'm stuck", "where was I" | `mv-doctor` | Diagnose, fix, and continue projects started elsewhere |
+
+## 🧸 Only the tech stack is fixed
+
+The engine (three.js + Vite), data formats, Supabase multiplayer and Cloudflare deploy stay the same. Characters, buildings and zone effects are **written fresh for each project** from what you describe — "a penguin in a scarf", "a library floating on clouds", "a hill with drifting cherry petals" — as files in `src/avatars/`, `src/props/`, `src/scenes/` that the engine loads automatically. The bunny and Seoul landmarks in the template are examples, not a menu. See [docs/custom-code.md](docs/custom-code.md).
+
+## 🔁 Polish loop
+
+A freshly built world is usually "not bad, but something's off" — and people find it hard to say what. So Claude looks first (screenshots of every zone, checked for first impression, structures, density, mood and mobile), offers **concrete options** instead of "how is it?", fixes, shows **before/after from the same spot**, commits a checkpoint, and asks again until you're happy.
+
+- **📝 In-world feedback button** — tap it while walking, write a line; the screenshot and location go to Claude. **🎯 Pick** a building to attach exactly which prop it is and its real size.
+- **🛠️ Structure workbench** `/lab.html` — one structure from front/45°/side/top, next to a person for scale and a reference photo, in one screen.
+
+Both exist only in `npm run dev`, never in the deployed build.
 
 ## 🔐 Secret scanning (always on)
 

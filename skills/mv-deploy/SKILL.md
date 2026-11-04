@@ -37,7 +37,8 @@ Cloudflare Workers 의 정적 자산(assets) 배포: 서버 코드 없이 `dist/
 
 - `state.deploy = { url, at, custom_domain }`, `steps.deploy.status = "done"`.
 - PROGRESS.md 에 주소·배포 시각. 다음에 고친 뒤엔 `npm run deploy` 한 번이면 된다고 안내.
-- 축하하고, 다음에 해 볼 만한 것 제안: 구역 추가(mv-worldview), 분위기 바꾸기(mv-concept), 소품·상호작용(mv-build), 방문자 통계(mv-multiplayer 의 002_visits.sql).
+- 축하하고, **휴대폰으로 열어 본 뒤 `mv-polish` 로 한 번 더 묻는다**: "실제 링크로 보니 걸리는 데 있어요?" (배포본엔 📝 버튼이 없으니 채팅으로 받거나 로컬 `npm run dev` 에서 📝). 고친 뒤엔 확인 받고 `npm run deploy`.
+- 더 해 볼 만한 것: 구역 추가(mv-worldview), 분위기 바꾸기(mv-concept), 소품·상호작용(mv-build), 방문자 통계(mv-multiplayer 의 002_visits.sql).
 
 ## 자주 막히는 곳
 

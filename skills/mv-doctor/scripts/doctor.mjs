@@ -24,7 +24,7 @@ const world = json('world/world.json');
 checks.worldview = { ok: !!(world && world.zones?.length && world.slug), detail: world ? `${world.title} · 구역 ${world.zones?.length || 0}개` : 'world/world.json 없음' };
 const concept = json('world/concept.json');
 const concepts = existsSync(P('concepts/index.html'));
-checks.concept = { ok: !!concept?.palette, detail: concept ? `선택: ${concept.name}` : concepts ? '시안은 있음, 아직 선택 안 함' : '시안 없음' };
+checks.concept = { ok: !!concept?.palette, detail: concept ? `선택: ${concept.name}${concept.avatar?.style ? ` · 캐릭터 ${concept.avatar.style}` : ''}` : concepts ? '시안은 있음, 아직 선택 안 함' : '시안 없음' };
 const pkg = json('package.json');
 const built = existsSync(P('src/main.js')) && !!pkg?.dependencies?.three;
 checks.build = { ok: built && existsSync(P('node_modules')), detail: !built ? '템플릿 없음' : existsSync(P('node_modules')) ? `npm 패키지 설치됨${existsSync(P('dist/index.html')) ? ' · dist 빌드 있음' : ''}` : 'npm install 필요' };
@@ -54,5 +54,13 @@ if (write) { mkdirSync(P('.metaverse'), { recursive: true }); writeFileSync(P('.
 const icon = { done: '✅', todo: '⬜', in_progress: '🟡', skipped: '⏭️' };
 console.log(`📂 ${dir}`);
 for (const s of STEPS) console.log(`${icon[state.steps[s].status]} ${SKILL[s].padEnd(15)} ${checks[s].detail}`);
-console.log(next ? `\n👉 다음 단계: ${SKILL[next]} — "${ASK[next]}" 라고 말하면 돼요` : '\n🎉 모든 단계 완료! 바꾸고 싶은 게 있으면 해당 단계 스킬을 다시 실행하세요.');
-console.log(JSON.stringify({ next: state.next, steps: Object.fromEntries(STEPS.map((s) => [s, state.steps[s].status])) }));
+// 🔁 다듬기 루프 (mv-polish): 단계가 아니라 언제든 도는 루프. 월드 안 📝 버튼으로 쌓인 고칠 점과 라운드 수를 알려 줌
+const inbox = (read('.metaverse/feedback/inbox.jsonl') || '').split('\n').filter(Boolean).length;
+const pending = Math.max(0, inbox - (+(read('.metaverse/feedback/.seen') || 0) || 0));
+const polish = json('.metaverse/polish.json');
+const rounds = polish?.rounds?.length || 0, happy = polish?.rounds?.at(-1)?.verdict === '만족';
+if (checks.build.ok) console.log(`${pending ? '📝' : happy ? '✅' : '🔁'} ${'mv-polish'.padEnd(15)} 다듬기 ${rounds}라운드${happy ? ' · 만족' : ''}${pending ? ` · 월드에서 남긴 고칠 점 ${pending}개가 기다리는 중` : ''}`);
+if (pending) console.log(`\n📝 먼저 쌓인 고칠 점 ${pending}개부터 볼게요 — "고칠 점 확인해 줘" 라고 말하면 돼요 (mv-polish)`);
+console.log(next ? `\n👉 다음 단계: ${SKILL[next]} — "${ASK[next]}" 라고 말하면 돼요` : '\n🎉 모든 단계 완료! 마음에 안 드는 게 있으면 "여기 마음에 안 들어" 라고 말하거나 월드 안 📝 버튼으로 콕 집어 주세요 (mv-polish).');
+if (next && checks.build.ok && !rounds) console.log('   (만든 월드에서 마음에 안 드는 게 있으면 언제든 "여기 고치고 싶어" — mv-polish)');
+console.log(JSON.stringify({ next: state.next, steps: Object.fromEntries(STEPS.map((s) => [s, state.steps[s].status])), polish: { rounds, pending, happy } }));

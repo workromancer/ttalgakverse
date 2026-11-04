@@ -3,7 +3,7 @@
 //  반환: { group, solid: [{ r } | { box: [반폭x, 반폭z] }] }  ← 부딪히는 영역
 import * as THREE from 'three';
 
-export function makeProps({ P, concept, lam, glow, tex }) {
+export function makeProps({ P, concept, lam, glow, tex, custom = {} }) {
   const C = (h) => new THREE.Color(h);
   const wood = concept.props?.wood || '#b98b5e', leaf = concept.props?.leaf || '#5fbf86', trunk = concept.props?.trunk || '#8b6a4e';
   const light = concept.props?.light || '#fff1b8';
@@ -107,7 +107,7 @@ export function makeProps({ P, concept, lam, glow, tex }) {
   };
   // 물줄기 (분수·무지개분수): onBeforeRender 로 흐르게
   const flow = (mesh, speed = 0.6) => { const t0 = performance.now(); mesh.onBeforeRender = () => { mesh.material.map.offset.y = -((performance.now() - t0) / 1000) * speed; }; return mesh; };
-  return {
+  const lib = {
     shop,
     shelf: (p) => { const g = new THREE.Group(), w = p.w || 3, h = p.h || 2.2; shelf(g, w, h, 0.4, (p.seed || 3) * 7); return { group: g, solid: [{ box: [w / 2 + 0.05, 0.25] }] }; },
     books: (p) => { const g = new THREE.Group(); for (let s = 0; s < (p.n || 3); s++) { let y = 0; for (let k = 0; k < 5 + s; k++) { const h = 0.08; box(g, 0.5, h, 0.36, lam(pick(BOOK, k + s * 3)), s * 0.55 - 0.5, y + h / 2, 0).rotation.y = (k % 3) * 0.12; y += h; } } return { group: g, solid: [{ r: 0.6 }] }; },
@@ -330,7 +330,14 @@ export function makeProps({ P, concept, lam, glow, tex }) {
       return { group: g, solid: [] };
     },
   };
+  // 프로젝트 전용 소품 (src/props/<kind>.js) — Claude 가 사용자 설명을 듣고 새로 짓는 구조물. 같은 이름이면 기본 소품을 덮어씀
+  //  각 파일: export default (p, kit) => ({ group, solid })   ← import 없이 kit 만 씀 (작업대·보드에서도 그대로 불림)
+  const kit = { THREE, C, P, concept, lam, glow, tex, box, cyl, canvasTex, stoneMat, danMat, plaqueTex, giwa, storey, flow, roof, wood, leaf, trunk, light };
+  for (const [kind, fn] of Object.entries(custom)) if (typeof fn === 'function') lib[kind] = (p) => fn(p, kit);
+  return lib;
 }
+// import.meta.glob 결과 { './props/gate.js': { default } } → { gate: fn }
+export const byName = (mods) => Object.fromEntries(Object.entries(mods || {}).filter(([f]) => !/\/_/.test(f)).map(([f, m]) => [f.split('/').pop().replace(/\.js$/, ''), m.default]));
 
 // 바닥 무늬 텍스처: cobble(돌길) · wood(마루) · tile · grass · plain
 export function floorTexture(kind, base, accent) {

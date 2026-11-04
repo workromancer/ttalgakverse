@@ -7,3 +7,6 @@ dist
 *.pem
 *.key
 .supabase
+
+# 📝 월드에서 남긴 고칠 점 스크린샷 (글은 inbox.jsonl 에 남음)
+.metaverse/feedback/*.jpg

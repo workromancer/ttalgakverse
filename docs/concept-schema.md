@@ -13,6 +13,10 @@
   },
   "light": { "sky": "#e6dcff", "ground": "#6b5a7a", "ambient": 1.5, "sun": "#ffe6c9", "intensity": 1.0 },
   "props": { "leaf": "#7ec8a4", "trunk": "#8b6a4e", "wood": "#c49a6c", "light": "#fff1b8", "water": "#8ec9ff" },
-  "avatar": { "me": "#fff3dc" }
+  "avatar": {
+    "me": "#fff3dc",          // 내 캐릭터 색 (몸 주색)
+    "style": "penguin",       // 캐릭터 스타일: 엔진 예시(bunny cat bear chick ghost robot kid) 또는 src/avatars/<id>.js (사용자 말대로 새로 지은 것)
+    "styles": ["penguin", "cat"]  // (선택) 방문자가 🎭 로 골라 쓸 스타일들, 첫 번째가 기본
+  }
 }
 ```

@@ -8,7 +8,7 @@
   * { box-sizing: border-box; margin: 0; } body { font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif; background: #0d1014; color: #eef2f5; padding: 20px; }
   h1 { font-size: 22px; } .muted { opacity: .65; font-size: 13px; }
   .qa { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .qa div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
+  .qa > div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
   .qa b { display: block; font-size: 11px; opacity: .6; } .qa .todo { opacity: .45; border-style: dashed; }
   .g { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 14px; margin-top: 18px; }
   .c { border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); background: #151a20; }
@@ -19,6 +19,13 @@
   .pick input { flex: 1; min-width: 150px; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
   .pick button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
   .c.chosen { outline: 3px solid #50fa7b; } .chosen-msg { color: #50fa7b; font-weight: 800; font-size: 14px; }
+  .qa .now { opacity: 1; border: 1px solid #6c5ce7; background: rgba(108,92,231,.12); max-width: 640px; flex-basis: 100%; }
+  .qa .now .ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .qa .now .ex button { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; border-radius: 18px; padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .qa .now .ex button:hover { background: rgba(108,92,231,.35); }
+  .qa .now .ans { display: flex; gap: 6px; } .qa .now input { flex: 1; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
+  .qa .now .ans button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .qa .now .hint { font-size: 11px; opacity: .6; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -32,7 +39,19 @@ const load = (f, d) => fetch(f, { cache: 'no-store' }).then((r) => (r.ok ? r.jso
 (async () => {
   const [qa, cs, choice] = await Promise.all([load('interview.json', []), load('concepts.json', []), load('choice.json', null)]);
   document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
-  document.getElementById('qa').innerHTML = qa.map((x) => `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+  // 인터뷰: 지금 물어보는 질문(답 안 한 첫 질문)은 예시를 눌러 고르거나 직접 써서 보드에서 바로 답할 수 있음 → /__answer → Claude 가 이어서 진행
+  { const now = (qa || []).findIndex((x) => !x.a);
+    const QA = document.getElementById('qa');
+    QA.innerHTML = (qa || []).map((x, i) => i === now
+      ? `<div class="now"><b>지금 질문 · ${i + 1}/${qa.length}</b>${esc(x.q)}${(x.ex || []).length ? `<div class="ex">${x.ex.map((e) => `<button data-ex="${esc(e)}">${esc(e)}</button>`).join('')}</div>` : ''}<div class="ans"><input id="ans" placeholder="예시를 눌러 고르거나, 섞거나, 자유롭게 써 주세요" /><button id="ans-send">답하기</button></div><div class="hint">채팅으로 답해도 돼요 · 모르겠으면 "추천해 줘"</div></div>`
+      : `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+    const inp = document.getElementById('ans');
+    QA.querySelectorAll('[data-ex]').forEach((b) => b.addEventListener('click', () => { inp.value = inp.value ? `${inp.value} + ${b.dataset.ex}` : b.dataset.ex; inp.focus(); }));
+    const send = async () => { const a = inp.value.trim(); if (!a) return inp.focus(); const btn = document.getElementById('ans-send'); btn.disabled = true; btn.textContent = '보내는 중…';
+      const r = await fetch('/__answer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board: 'concepts', i: now, a }) }).catch(() => null);
+      if (!r?.ok) { btn.disabled = false; btn.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 답해 주세요.'); } else btn.textContent = '✅ 전달됨 — Claude 가 반영 중…'; };
+    document.getElementById('ans-send')?.addEventListener('click', send);
+    inp?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) send(); }); }
   document.getElementById('g').innerHTML = cs.length ? cs.map((c) => { const on = String(choice?.id) === String(c.id); return `<div class="c${on ? ' chosen' : ''}"><iframe src="concept-template.html?id=${encodeURIComponent(c.id)}"></iframe><a href="concept-template.html?id=${encodeURIComponent(c.id)}" target="_blank">시안 ${esc(c.id)} · ${esc(c.name)} ↗</a>
       <div class="pick">${on ? `<span class="chosen-msg">✅ 골랐어요 — Claude 에게 전달됐어요${choice.note ? ` (고칠 점: ${esc(choice.note)})` : ''}</span>` : `<input placeholder="고칠 점 (선택) 예: 하늘은 C 처럼" data-note="${esc(c.id)}" /><button data-pick="${esc(c.id)}">이 시안으로 할게요</button>`}</div></div>`; }).join('')
     : '<div class="empty">✍️ 인터뷰 답을 바탕으로 시안을 만드는 중이에요…</div>';

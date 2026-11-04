@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>캐릭터 시안 · 딸각verse</title>
+<!-- 캐릭터 인터뷰 라이브 보드: interview.json(답) + avatars.json(후보들). live-preview.mjs 로 열어 두면 저절로 새로고침
+     후보 = { id, style, color, acc?, name, why }. style 이 기본 스타일이 아니면 프로젝트의 /src/avatars/<style>.js 를 불러옴 (Claude 가 새로 짓는 파일)
+     색·바닥·하늘은 ../world/concept.json (컨셉을 정한 뒤) -->
+<style>
+  * { box-sizing: border-box; margin: 0; } body { font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif; background: #0d1014; color: #eef2f5; padding: 20px; }
+  h1 { font-size: 22px; } .muted { opacity: .65; font-size: 13px; }
+  .qa { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .qa > div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px 12px; font-size: 13px; max-width: 420px; }
+  .qa b { display: block; font-size: 11px; opacity: .6; } .qa .todo { opacity: .45; border-style: dashed; }
+  .g { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 18px; }
+  .c { border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); background: #151a20; }
+  .c canvas { width: 100%; height: 300px; display: block; }
+  .c .t { padding: 10px 14px 4px; font-weight: 800; } .c .why { padding: 0 14px 8px; font-size: 12px; opacity: .7; }
+  .c .err { padding: 10px 14px; color: #ff8a8a; font-size: 12px; }
+  .pick { padding: 0 14px 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .pick input { flex: 1; min-width: 120px; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
+  .pick button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .c.chosen { outline: 3px solid #50fa7b; } .chosen-msg { color: #50fa7b; font-weight: 800; font-size: 14px; }
+  .empty { margin-top: 40px; text-align: center; opacity: .7; }
+  .qa .now { opacity: 1; border: 1px solid #6c5ce7; background: rgba(108,92,231,.12); max-width: 640px; flex-basis: 100%; }
+  .qa .now .ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .qa .now .ex button { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; border-radius: 18px; padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .qa .now .ex button:hover { background: rgba(108,92,231,.35); }
+  .qa .now .ans { display: flex; gap: 6px; } .qa .now input { flex: 1; background: #0d1014; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; color: #fff; padding: 9px 11px; font: inherit; font-size: 13px; }
+  .qa .now .ans button { background: #6c5ce7; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 800; cursor: pointer; }
+  .qa .now .hint { font-size: 11px; opacity: .6; margin-top: 6px; }
+</style>
+</head>
+<body>
+<h1>🎭 캐릭터 시안 <span class="muted" id="when"></span></h1>
+<div class="muted" style="margin-top:4px">말해 준 캐릭터를 Claude 가 새로 지어서 보여 줘요. 마음에 드는 것의 <b>이 캐릭터로 할게요</b> 를 누르거나, "B로", "A 모양에 C 색", "귀를 더 길게" 처럼 말해 주세요.</div>
+<div class="qa" id="qa"></div>
+<div class="g" id="g"></div>
+<script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { Character, registerStyles, STYLES, setTagColor } from './character.js';
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const load = (f, d) => fetch(f, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
+const [qa, cands, choice, concept] = await Promise.all([load('interview.json', []), load('avatars.json', []), load('choice.json', null), load('../world/concept.json', null)]);
+const P = concept?.palette || { primary: '#6c5ce7', accent: '#ffd166', floor: '#cfe3d4', sky: ['#9ec9ff', '#fff1dc'] };
+setTagColor(P.primary);
+document.getElementById('when').textContent = `· ${new Date().toLocaleTimeString('ko-KR')} 갱신`;
+  // 인터뷰: 지금 물어보는 질문(답 안 한 첫 질문)은 예시를 눌러 고르거나 직접 써서 보드에서 바로 답할 수 있음 → /__answer → Claude 가 이어서 진행
+  { const now = (qa || []).findIndex((x) => !x.a);
+    const QA = document.getElementById('qa');
+    QA.innerHTML = (qa || []).map((x, i) => i === now
+      ? `<div class="now"><b>지금 질문 · ${i + 1}/${qa.length}</b>${esc(x.q)}${(x.ex || []).length ? `<div class="ex">${x.ex.map((e) => `<button data-ex="${esc(e)}">${esc(e)}</button>`).join('')}</div>` : ''}<div class="ans"><input id="ans" placeholder="예시를 눌러 고르거나, 섞거나, 자유롭게 써 주세요" /><button id="ans-send">답하기</button></div><div class="hint">채팅으로 답해도 돼요 · 모르겠으면 "추천해 줘"</div></div>`
+      : `<div class="${x.a ? '' : 'todo'}"><b>${esc(x.q)}</b>${esc(x.a || '아직 안 물어봄')}</div>`).join('');
+    const inp = document.getElementById('ans');
+    QA.querySelectorAll('[data-ex]').forEach((b) => b.addEventListener('click', () => { inp.value = inp.value ? `${inp.value} + ${b.dataset.ex}` : b.dataset.ex; inp.focus(); }));
+    const send = async () => { const a = inp.value.trim(); if (!a) return inp.focus(); const btn = document.getElementById('ans-send'); btn.disabled = true; btn.textContent = '보내는 중…';
+      const r = await fetch('/__answer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board: 'avatars', i: now, a }) }).catch(() => null);
+      if (!r?.ok) { btn.disabled = false; btn.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 답해 주세요.'); } else btn.textContent = '✅ 전달됨 — Claude 가 반영 중…'; };
+    document.getElementById('ans-send')?.addEventListener('click', send);
+    inp?.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) send(); }); }
+const G = document.getElementById('g');
+if (!cands.length) G.innerHTML = '<div class="empty">✍️ 이야기해 준 캐릭터를 짓는 중이에요…</div>';
+
+// 프로젝트 전용 스타일 불러오기 (/src/avatars/<style>.js — import 없는 파일이라 그대로 불림)
+for (const c of cands) if (c.style && !STYLES[c.style]) {
+  try { const m = await import(`/src/avatars/${c.style}.js?t=${Date.now()}`); registerStyles({ [c.style]: m.default }); } catch (e) { c.err = `src/avatars/${c.style}.js 를 못 불러왔어요: ${e.message}`; }
+}
+const scenes = [];
+for (const c of cands) {
+  const on = String(choice?.id) === String(c.id);
+  const card = document.createElement('div'); card.className = 'c' + (on ? ' chosen' : '');
+  const st = STYLES[c.style] || {};
+  card.innerHTML = `<canvas></canvas><div class="t">${esc(c.id)} · ${esc(st.icon || '')} ${esc(c.name || st.label || c.style)}</div><div class="why">${esc(c.why || '')}</div>${c.err ? `<div class="err">${esc(c.err)}</div>` : ''}
+    <div class="pick">${on ? `<span class="chosen-msg">✅ 골랐어요 — Claude 에게 전달됐어요${choice.note ? ` (고칠 점: ${esc(choice.note)})` : ''}</span>` : `<input placeholder="고칠 점 (선택) 예: 귀를 더 길게" data-note="${esc(c.id)}" /><button data-pick="${esc(c.id)}">이 캐릭터로 할게요</button>`}</div>`;
+  G.appendChild(card);
+  if (c.err || !STYLES[c.style]) continue;
+  const cv = card.querySelector('canvas'), r = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+  r.setPixelRatio(Math.min(2, devicePixelRatio)); r.outputColorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Scene(); s.background = new THREE.Color((P.sky || [])[1] || '#dfe6ee');
+  s.add(new THREE.HemisphereLight(0xffffff, 0x888888, concept?.light?.ambient ?? 1.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(3, 6, 4); s.add(sun);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(1.6, 40), new THREE.MeshLambertMaterial({ color: P.floor })); floor.rotation.x = -Math.PI / 2; s.add(floor);
+  const ch = new Character(new THREE.Color(c.color || concept?.avatar?.me || '#fff3dc'), c.name || null, c.style);
+  if (c.acc) ch.setAccessories(c.acc);
+  s.add(ch);
+  const cam = new THREE.PerspectiveCamera(35, 1, 0.1, 50); cam.position.set(0, 1.35, 4.2); cam.lookAt(0, 0.85, 0);
+  scenes.push({ r, s, cam, ch, cv });
+}
+// 걷기 → 멈춤 → 이모트를 번갈아 보여 줌, 천천히 돌면서
+const clock = new THREE.Clock(), ACT = [null, 'wave', null, 'heart', null, 'party'];
+(function loop() {
+  const dt = Math.min(0.1, clock.getDelta()), t = clock.elapsedTime, ph = Math.floor(t / 2.5) % 6;
+  for (const x of scenes) {
+    const w = x.cv.clientWidth, h = x.cv.clientHeight;
+    if (x.cv.width !== Math.round(w * x.r.getPixelRatio())) { x.r.setSize(w, h, false); x.cam.aspect = w / h; x.cam.updateProjectionMatrix(); }
+    x.ch.rotation.y = Math.sin(t * 0.5) * 0.9;
+    x.ch.setActivity(ACT[ph]); x.ch.update(dt, ph % 2 === 0 ? 3 : 0, false);
+    x.r.render(x.s, x.cam);
+  }
+  requestAnimationFrame(loop);
+})();
+// "이 캐릭터로 할게요" → 라이브 서버가 avatars/choice.json 에 저장 → Claude 가 wait-choice 로 기다리다 이어서 진행
+document.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', async () => {
+  const id = b.dataset.pick, note = document.querySelector(`[data-note="${CSS.escape(id)}"]`)?.value.trim() || '';
+  b.disabled = true; b.textContent = '보내는 중…';
+  const r = await fetch('/__choice', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ board: 'avatars', id, note }) }).catch(() => null);
+  if (!r?.ok) { b.disabled = false; b.textContent = '다시 시도'; alert('미리보기 서버에 못 보냈어요. 채팅으로 골라 주세요.'); }
+}));
+</script>
+</body>
+</html>
