@@ -55,7 +55,11 @@ export function createNet({ onState, onLeave, onCount }) {
     const c = sb.channel(`${APP}:zone:${i}`, { config: { broadcast: { self: false }, presence: { key: me.id } } });
     c.on('broadcast', { event: 's' }, ({ payload }) => { if (payload && payload.id !== me.id) onState?.(payload); })
       .on('presence', { event: 'sync' }, countPeers)
-      .on('presence', { event: 'join' }, ({ key }) => { if (key !== me.id && lastPayload) { lastSent = 0; net.send(lastPayload, true); } })
+      .on('presence', { event: 'join' }, ({ key }) => {
+        // 새로 들어온 사람이 구독을 마치기 전에 보낸 건 못 받을 수 있어서, 조금 뒤 두 번 더 보냄
+        if (key === me.id || !lastPayload) return;
+        for (const ms of [0, 700, 2000]) setTimeout(() => { if (ch === c && lastPayload) { lastSent = 0; net.send(lastPayload, true); } }, ms);
+      })
       .on('presence', { event: 'leave' }, ({ key }) => { onLeave?.(key); countPeers(); })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED' && ch === c) {
@@ -74,7 +78,7 @@ export function createNet({ onState, onLeave, onCount }) {
     const same = lastPayload && JSON.stringify({ ...lastPayload, t: 0 }) === JSON.stringify({ ...payload, t: 0 });
     lastPayload = payload;
     const now = Date.now();
-    if (!ch || !joined || (!force && same && now - lastSent < 8000)) return;
+    if (!ch || !joined || (!force && same && now - lastSent < 4000)) return;
     if (!force && now - lastSent < gap) { pending = payload; return; }
     pending = null; lastSent = now;
     ch.send({ type: 'broadcast', event: 's', payload });

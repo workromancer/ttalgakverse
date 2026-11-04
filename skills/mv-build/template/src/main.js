@@ -337,4 +337,4 @@ function frame() {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-window.__mv = { player, cam, world, get zone() { return zone; }, enterZone, net };
+window.__mv = { player, cam, world, get zone() { return zone; }, enterZone, net, remotes, avatar };
