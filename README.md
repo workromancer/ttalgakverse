@@ -106,3 +106,7 @@ skills/           metaverse · mv-setup · mv-worldview · mv-concept · mv-buil
 docs/             워크플로우 설계, 상태·스키마 형식
 examples/         컨셉 시안 예시
 ```
+
+## 라이선스
+
+[MIT](LICENSE) — 자유롭게 쓰고, 고치고, 나눠도 됩니다.

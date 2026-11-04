@@ -14,5 +14,6 @@
     "vibe-coding",
     "korean"
   ],
-  "icon": ".claude-plugin/icon.png"
+  "icon": ".claude-plugin/icon.png",
+  "license": "MIT"
 }

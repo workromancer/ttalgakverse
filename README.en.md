@@ -62,3 +62,7 @@ Every step records to `.metaverse/state.json` (machine) and `.metaverse/PROGRESS
 Both Cloudflare Workers static assets and Supabase start on free plans. A custom domain is optional.
 
 Documentation inside the skills is written in Korean; Claude follows it and talks to you in English if you write in English.
+
+## License
+
+[MIT](LICENSE)
