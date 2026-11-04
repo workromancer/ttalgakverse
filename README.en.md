@@ -3,6 +3,7 @@
 
 <p align="center"><b>A few chat messages and a few clicks (<i>ttalgak!</i>) — your own metaverse.</b><br/>Design the world together through a live interview, walk it with friends without a server, and publish it with one link.</p>
 <p align="center"><a href="README.md">한국어</a> · English</p>
+<p align="center">Works with Claude Code · Codex (ChatGPT app)</p>
 
 ---
 
@@ -21,14 +22,18 @@ While Claude asks you a few questions, **a draft of your world is drawn live in 
 
 > Distilled from building [Metrobus](https://metrobus.workromancer.ai), a Seoul Subway Line 2 metaverse.
 
-## Install (Claude Code)
+## Install
 
-```
-/plugin marketplace add workromancer/ttalgakverse
-/plugin install ttalgakverse@ttalgakverse
-```
+Works in both **Claude Code** and **Codex** (including the ChatGPT app).
 
-In an empty folder, say **"I want to build a metaverse"** or run `/metaverse`. Claude replies in your language (Korean or English).
+| | Install |
+|---|---|
+| **Claude Code** | `/plugin marketplace add workromancer/ttalgakverse` → `/plugin install ttalgakverse@ttalgakverse` |
+| **Codex / ChatGPT app** | Add `workromancer/ttalgakverse` as a plugin marketplace and install ttalgakverse |
+
+Then, in an empty folder, say **"I want to build a metaverse"**. The agent replies in your language (Korean or English). In Claude Code you can also run `/metaverse`.
+
+> MCP connections (Supabase, Cloudflare) follow your app's own MCP setup; the skills check the official docs and guide you for the app you use.
 
 ## Steps
 

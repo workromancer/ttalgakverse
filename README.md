@@ -3,6 +3,7 @@
 
 <p align="center"><b>채팅 몇 마디, 딸각 몇 번이면 나만의 메타버스.</b><br/>인터뷰하며 세계를 함께 그리고, 서버 없이 친구들과 걷고, 링크 하나로 공개까지.</p>
 <p align="center">한국어 · <a href="README.en.md">English</a></p>
+<p align="center">Claude Code · Codex (ChatGPT 앱) 호환</p>
 
 ---
 
@@ -19,14 +20,18 @@ Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신
 
 > 서울 지하철 2호선 메타버스 [메트로버스](https://metrobus.workromancer.ai)를 만든 과정을 누구나 쓸 수 있게 정리했습니다.
 
-## 설치 (Claude Code)
+## 설치
 
-```
-/plugin marketplace add workromancer/ttalgakverse
-/plugin install ttalgakverse@ttalgakverse
-```
+**Claude Code** 와 **Codex** (ChatGPT 앱 포함) 모두에서 쓸 수 있어요.
 
-빈 폴더에서 **"메타버스 만들고 싶어"** 라고 입력하거나 `/metaverse` 를 실행하세요.
+| | 설치 |
+|---|---|
+| **Claude Code** | `/plugin marketplace add workromancer/ttalgakverse` → `/plugin install ttalgakverse@ttalgakverse` |
+| **Codex / ChatGPT 앱** | 플러그인 마켓플레이스에 `workromancer/ttalgakverse` 를 추가하고 딸각verse 를 설치 |
+
+설치한 뒤 빈 폴더에서 **"메타버스 만들고 싶어"** 라고 입력하면 시작합니다. (Claude Code 는 `/metaverse` 로 직접 불러도 됨)
+
+> MCP 연결(Supabase·Cloudflare)은 쓰는 앱의 MCP 설정 방식을 따릅니다. 스킬이 공식 문서를 보고 그 앱에 맞게 안내해 줘요.
 
 ## 진행 단계
 
