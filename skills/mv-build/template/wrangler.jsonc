@@ -1,0 +1,7 @@
+{
+  // mv-deploy 단계: name 을 바꾸면 https://<name>.<계정>.workers.dev 로 배포됨
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "my-metaverse",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
+}

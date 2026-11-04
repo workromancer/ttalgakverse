@@ -1,0 +1,39 @@
+{
+  "slug": "starlight",
+  "title": "별빛 정원",
+  "tagline": "밤마다 별이 내려앉는 작은 정원 마을",
+  "spawn": "plaza",
+  "zones": [
+    {
+      "id": "plaza", "name": "중앙 광장", "desc": "모두가 처음 도착하는 곳", "shape": "open", "size": [44, 44],
+      "props": [
+        { "kind": "fountain", "x": 0, "z": 0 },
+        { "kind": "sign", "x": 0, "z": -8, "text": "별빛 정원에 오신 걸 환영해요" },
+        { "kind": "tree", "x": -12, "z": -10 }, { "kind": "tree", "x": 12, "z": -11 }, { "kind": "tree", "x": -14, "z": 9 }, { "kind": "tree", "x": 13, "z": 12 },
+        { "kind": "bench", "x": -6, "z": 5, "rot": 30 }, { "kind": "bench", "x": 6, "z": 5, "rot": -30 },
+        { "kind": "lamp", "x": -5, "z": -4 }, { "kind": "lamp", "x": 5, "z": -4 },
+        { "kind": "flowers", "x": -9, "z": 2 }, { "kind": "flowers", "x": 9, "z": 2 },
+        { "kind": "kiosk", "x": 15, "z": -2, "rot": -90, "text": "별사탕 가게" }
+      ],
+      "portals": [ { "to": "library", "x": 0, "z": -20, "label": "달빛 도서관" }, { "to": "lake", "x": -20, "z": 0, "label": "호수" } ]
+    },
+    {
+      "id": "library", "name": "달빛 도서관", "desc": "조용히 이야기 나누는 곳", "shape": "room", "size": [26, 22], "height": 6,
+      "floor": "#d9c9b0", "wall": "#f1e7d6",
+      "props": [
+        { "kind": "box", "x": -9, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" }, { "kind": "box", "x": 0, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" },
+        { "kind": "box", "x": 9, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" },
+        { "kind": "bench", "x": -4, "z": 3 }, { "kind": "bench", "x": 4, "z": 3 }, { "kind": "lamp", "x": -7, "z": 6 }
+      ],
+      "portals": [ { "to": "plaza", "x": 0, "z": 11, "label": "중앙 광장" } ]
+    },
+    {
+      "id": "lake", "name": "별빛 호수", "desc": "별이 비치는 물가", "shape": "open", "size": [36, 30], "floor": "#a9d6b5",
+      "props": [
+        { "kind": "box", "x": 0, "z": -6, "size": [16, 0.1, 9], "color": "#6fb6e8" },
+        { "kind": "rock", "x": -9, "z": -3, "scale": 1.2 }, { "kind": "rock", "x": 8, "z": -9 }, { "kind": "tree", "x": 11, "z": 6 }, { "kind": "bench", "x": -4, "z": 7 }
+      ],
+      "portals": [ { "to": "plaza", "x": 17, "z": 6, "label": "중앙 광장" } ]
+    }
+  ]
+}

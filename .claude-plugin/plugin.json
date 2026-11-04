@@ -1,0 +1,17 @@
+{
+  "name": "metaverse-kit",
+  "description": "서버 없이 나만의 브라우저 3D 메타버스를 만드는 단계별 스킬 묶음: 준비 → 세계관 → 컨셉 시안(HTML) → 빌드 → 멀티플레이(Supabase) → 배포(Cloudflare workers.dev). 중간에 막혀도 진단하고 이어서 진행.",
+  "version": "0.1.0",
+  "author": {
+    "name": "workromancer"
+  },
+  "keywords": [
+    "metaverse",
+    "threejs",
+    "supabase",
+    "cloudflare",
+    "multiplayer",
+    "korean"
+  ],
+  "icon": ".claude-plugin/icon.png"
+}

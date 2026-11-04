@@ -1,0 +1,14 @@
+[
+  { "id": "A", "name": "파스텔 밤하늘", "mood": "포근하고 몽환적인 밤 산책", "keywords": ["파스텔", "별빛", "느긋함"],
+    "palette": { "primary": "#6c5ce7", "accent": "#ffd166", "floor": "#cfe3d4", "wall": "#e9e4f5", "sky": ["#2b2a5c", "#f2b8c6"], "fog": "#c9a7c7" },
+    "light": { "sky": "#e6dcff", "ground": "#6b5a7a", "ambient": 1.5, "sun": "#ffe6c9", "intensity": 1.0 },
+    "props": { "leaf": "#7ec8a4", "trunk": "#8b6a4e", "wood": "#c49a6c", "light": "#fff1b8", "water": "#8ec9ff" }, "avatar": { "me": "#fff3dc" } },
+  { "id": "B", "name": "한낮의 여름 정원", "mood": "밝고 상쾌한 소풍날", "keywords": ["청량", "초록", "햇살"],
+    "palette": { "primary": "#00a86b", "accent": "#ff7a59", "floor": "#e9f6d8", "wall": "#fffaf0", "sky": ["#5ec8ff", "#e8f8ff"], "fog": "#dff3ff" },
+    "light": { "sky": "#ffffff", "ground": "#9db58a", "ambient": 1.6, "sun": "#fff7e0", "intensity": 1.4 },
+    "props": { "leaf": "#4cb963", "trunk": "#7a5536", "wood": "#d9a066", "light": "#fffbe6", "water": "#5cc8ff" }, "avatar": { "me": "#ffffff" } },
+  { "id": "C", "name": "네온 야시장", "mood": "북적이고 반짝이는 도시의 밤", "keywords": ["네온", "사이버", "야시장"],
+    "palette": { "primary": "#ff2e88", "accent": "#00e5ff", "floor": "#2a2f3a", "wall": "#1b1f2a", "sky": ["#0b0326", "#3a0f5c"], "fog": "#2a0c45" },
+    "light": { "sky": "#b28cff", "ground": "#1a1030", "ambient": 1.1, "sun": "#ff9ad1", "intensity": 0.7 },
+    "props": { "leaf": "#2ee6a6", "trunk": "#3b2f4a", "wood": "#5b4b7a", "light": "#ff4fd8", "water": "#00e5ff" }, "avatar": { "me": "#f3f0ff" } }
+]

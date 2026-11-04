@@ -1,0 +1,14 @@
+{
+  "name": "metaverse-kit",
+  "owner": {
+    "name": "workromancer"
+  },
+  "description": "서버 없이 브라우저 3D 메타버스를 만드는 단계별 스킬 (세계관 → 컨셉 시안 → 빌드 → 멀티플레이 → 배포)",
+  "plugins": [
+    {
+      "name": "metaverse-kit",
+      "source": "./",
+      "description": "브라우저 3D 메타버스 만들기 워크플로우 (세계관 → 시안 → 빌드 → 멀티플레이 → 배포)"
+    }
+  ]
+}
