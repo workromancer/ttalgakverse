@@ -1,8 +1,5 @@
-{
-  "name": "파스텔 밤하늘",
-  "mood": "포근하고 몽환적인 밤",
-  "palette": { "primary": "#6c5ce7", "accent": "#ffd166", "floor": "#cfe3d4", "wall": "#e9e4f5", "sky": ["#2b2a5c", "#f2b8c6"], "fog": "#c9a7c7" },
-  "light": { "sky": "#e6dcff", "ground": "#6b5a7a", "ambient": 1.5, "sun": "#ffe6c9", "intensity": 1.0 },
-  "props": { "leaf": "#7ec8a4", "trunk": "#8b6a4e", "wood": "#c49a6c", "light": "#fff1b8", "water": "#8ec9ff" },
-  "avatar": { "me": "#fff3dc" }
-}
+{ "id": "A", "name": "서울의 노을", "mood": "노을 지는 서울, 따뜻한 불빛이 하나둘 켜지는 시간", "keywords": ["노을", "벚꽃", "도시 불빛"],
+  "palette": { "primary": "#d1495b", "accent": "#ffd166", "floor": "#cfd6c4", "wall": "#efe6d8", "sky": ["#3b3f86", "#ffb38a"], "fog": "#e8b3a0" },
+  "light": { "sky": "#ffe2cc", "ground": "#5a6a58", "ambient": 1.35, "sun": "#ffc88f", "intensity": 1.5 },
+  "props": { "leaf": "#7fb86a", "trunk": "#6b4a35", "wood": "#b07a4f", "light": "#ffe2a8", "water": "#5f9fd6" },
+  "avatar": { "me": "#fff3dc" } }

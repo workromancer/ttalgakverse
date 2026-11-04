@@ -13,6 +13,7 @@ description: 딸각verse 3단계 — 분위기·색감 인터뷰를 하면서 �
 mkdir -p concepts
 cp <이 스킬 폴더>/assets/board.html concepts/index.html
 cp <이 스킬 폴더>/assets/concept-template.html concepts/
+cp <키트 루트>/skills/mv-build/template/src/props.js concepts/   # 엔진과 같은 소품으로 그리기
 echo '[]' > concepts/concepts.json
 node -e "const w=require('./world/world.json');console.log(JSON.stringify(w.zones.find(z=>z.id===w.spawn)))" > concepts/zone.json
 node <키트 루트>/shared/live-preview.mjs . 4321   # 이미 떠 있으면 그대로
@@ -37,7 +38,7 @@ node <키트 루트>/shared/live-preview.mjs . 4321   # 이미 떠 있으면 그
 ## 2) 시안 형식 (`concepts/concepts.json`, 키트 docs/concept-schema.md)
 
 ```json
-[{ "id": "A", "name": "노을 책방", "mood": "따뜻하고 조용한 저녁", "keywords": ["노을", "종이 냄새"],
+[{ "id": "A", "name": "서울의 노을", "mood": "노을 지는 서울, 불빛이 하나둘 켜지는 시간", "keywords": ["노을", "벚꽃"],
    "palette": { "primary": "#c0563f", "accent": "#ffcf7a", "floor": "#e8dcc6", "wall": "#f4ead8", "sky": ["#5b3a6b", "#ffb88c"], "fog": "#e9b9a0" },
    "light": { "sky": "#ffe0c2", "ground": "#6b4f45", "ambient": 1.4, "sun": "#ffc58a", "intensity": 1.1 },
    "props": { "leaf": "#8fb87a", "trunk": "#7a5536", "wood": "#b07a4f", "light": "#ffe2a8", "water": "#7fb8d6" },

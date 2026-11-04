@@ -84,17 +84,32 @@ document.getElementById('side').innerHTML = `
 const view = document.getElementById('view');
 const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); renderer.outputColorSpace = THREE.SRGBColorSpace;
 view.appendChild(renderer.domElement);
-const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(50, 1, 0.1, 900);
 const sky = document.createElement('canvas'); sky.width = 2; sky.height = 256; { const g = sky.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, P.sky[0]); gr.addColorStop(1, P.sky[1]); g.fillStyle = gr; g.fillRect(0, 0, 2, 256); }
 const st = new THREE.CanvasTexture(sky); st.colorSpace = THREE.SRGBColorSpace; scene.background = st;
-scene.fog = new THREE.Fog(C(P.fog || P.sky[1]), 40, 120);
+scene.fog = new THREE.Fog(C(P.fog || P.sky[1]), 60, 260);
 scene.add(new THREE.HemisphereLight(C(K.light?.sky || '#fff'), C(K.light?.ground || '#888'), K.light?.ambient ?? 1.4));
 const sun = new THREE.DirectionalLight(C(K.light?.sun || '#fff'), K.light?.intensity ?? 1.1); sun.position.set(20, 40, 15); scene.add(sun);
 const lam = (h) => new THREE.MeshLambertMaterial({ color: C(h) }), glow = (h) => new THREE.MeshBasicMaterial({ color: C(h) });
 const [W, D] = Z.size;
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), lam(P.floor)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+// 엔진(mv-build/template/src/props.js)과 같은 소품·바닥 무늬를 씀. 파일이 없으면 기본 소품만.
+const PR = await import('./props.js').catch(() => null);
+function signTexture(text, bg = P.primary) {
+  const c = document.createElement('canvas'); c.width = 720; c.height = 220; const g = c.getContext('2d');
+  g.fillStyle = bg; g.beginPath(); g.roundRect(0, 0, 720, 220, 40); g.fill();
+  let fs = 64; g.font = `800 ${fs}px "Pretendard","Apple SD Gothic Neo",sans-serif`;
+  while (g.measureText(text).width > 660 && fs > 24) { fs -= 4; g.font = `800 ${fs}px "Pretendard","Apple SD Gothic Neo",sans-serif`; }
+  g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 360, 114);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const EXTRA = PR ? PR.makeProps({ P, concept: K, lam, glow, tex: { sign: signTexture, rug: PR.rugTexture, check: PR.checkTexture } }) : {};
+const fmat = (pat, color, w, d) => { if (!PR || !pat || pat === 'plain') return lam(color); const t = PR.floorTexture(pat, color); t.repeat.set(w / 4, d / 4); return new THREE.MeshLambertMaterial({ map: t }); };
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), fmat(Z.pattern, Z.floor || P.floor, W, D)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+for (const a of Z.areas || []) { const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.d), fmat(a.pattern, a.color || P.floor, a.w, a.d)); m.rotation.x = -Math.PI / 2; m.position.set(a.x, 0.006, a.z); scene.add(m); }
+for (const wv of Z.water || []) { const m = new THREE.Mesh(wv.r ? new THREE.CircleGeometry(wv.r, 48) : new THREE.PlaneGeometry(wv.w, wv.d), new THREE.MeshPhongMaterial({ color: C(wv.color || K.props?.water || '#6fb6e8'), specular: '#ffffff', shininess: 120 })); m.rotation.x = -Math.PI / 2; m.position.set(wv.x, 0.09, wv.z); scene.add(m); }
 const edge = new THREE.Mesh(new THREE.BoxGeometry(W + 1, 0.4, D + 1), lam(P.wall)); edge.position.y = -0.21; scene.add(edge);
 function prop(p) {
+  if (EXTRA[p.kind]) { const { group } = EXTRA[p.kind](p); group.position.set(p.x, 0, p.z); group.rotation.y = ((p.rot || 0) * Math.PI) / 180; scene.add(group); return; }
   const g = new THREE.Group(); g.position.set(p.x, 0, p.z); g.rotation.y = ((p.rot || 0) * Math.PI) / 180;
   const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
   if (p.kind === 'tree') { add(new THREE.CylinderGeometry(0.18, 0.25, 1.6, 8), lam(K.props?.trunk || '#8b6a4e'), 0, 0.8, 0); add(new THREE.IcosahedronGeometry(1.2, 0), lam(K.props?.leaf || '#5fbf86'), 0, 2.3, 0); }
@@ -103,6 +118,7 @@ function prop(p) {
   else if (p.kind === 'fountain') { add(new THREE.CylinderGeometry(2.4, 2.6, 0.6, 24), lam('#d8d8d8'), 0, 0.3, 0); add(new THREE.CylinderGeometry(2.1, 2.1, 0.05, 24), new THREE.MeshPhongMaterial({ color: C(K.props?.water || '#7cc6ff'), shininess: 90 }), 0, 0.6, 0); add(new THREE.CylinderGeometry(0.25, 0.35, 1.6, 12), lam('#e6e6e6'), 0, 1.2, 0); }
   else if (p.kind === 'flowers') { for (let k = 0; k < 14; k++) add(new THREE.SphereGeometry(0.12, 6, 5), glow([P.accent, P.primary, '#fff'][k % 3]), (Math.random() - 0.5) * 2.4, 0.15, (Math.random() - 0.5) * 2.4); }
   else if (p.kind === 'kiosk') { add(new THREE.BoxGeometry(2.4, 2.4, 1.8), lam(P.accent), 0, 1.2, 0); const r = add(new THREE.ConeGeometry(1.9, 1, 4), lam(P.primary), 0, 2.9, 0); r.rotation.y = Math.PI / 4; }
+  else if (p.kind === 'sign') { for (const x of [-1.4, 1.4]) add(new THREE.CylinderGeometry(0.07, 0.07, 2.2, 8), lam('#3a3a3a'), x, 1.1, 0); const b = add(new THREE.PlaneGeometry(3.4, 1.05), new THREE.MeshBasicMaterial({ map: signTexture(p.text || '', P.primary), side: THREE.DoubleSide }), 0, 2.1, 0.05); }
   else if (p.kind === 'rock') { const r = add(new THREE.DodecahedronGeometry(0.7, 0), lam('#9aa0a6'), 0, 0.4, 0); r.scale.y = 0.7; }
   else { const [w, h, d] = p.size || [1, 1, 1]; add(new THREE.BoxGeometry(w, h, d), lam(p.color || P.accent), 0, h / 2, 0); }
   scene.add(g);
@@ -123,7 +139,7 @@ function blob(color, x, z, yaw) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), glow('#2a2320')); eye.position.set(s * 0.13, 0.55, 0.38); g.add(eye); }
   scene.add(g); return g;
 }
-blob(K.avatar?.me || '#fff3dc', 0, 6, Math.PI); blob('#ffd9e4', -2, 7.5, 2.6); blob('#d9ecff', 2.2, 7, -2.8);
+const [sx, sz] = Z.spawn || [0, 6]; blob(K.avatar?.me || '#fff3dc', sx, sz, Math.PI); blob('#ffd9e4', sx - 2, sz + 1.5, 2.6); blob('#d9ecff', sx + 2.2, sz + 1, -2.8);
 function resize() { const r = view.getBoundingClientRect(); renderer.setSize(r.width, r.height); camera.aspect = r.width / r.height; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 let t = 0;

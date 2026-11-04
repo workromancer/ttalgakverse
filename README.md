@@ -6,7 +6,7 @@
 
 ---
 
-"동네 작은 책방 골목에서 사람들이 만나면 좋겠어" — 이 한 마디로 시작합니다.
+"한강공원이랑 석촌호수, 광화문광장을 걸어 다니는 서울 산책 메타버스 만들고 싶어" — 이 한 마디로 시작합니다.
 
 Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신만의 세계관 초안이 실시간으로 그려지고**, 이어서 **분위기·색감 시안 3개가 3D 로** 나타납니다. 고르면 그대로 걸어 다닐 수 있는 월드가 되고, 친구와 같이 접속하고, `https://<이름>.workers.dev` 로 공개됩니다.
 
@@ -74,18 +74,20 @@ flowchart LR
 ```
 $ node skills/mv-doctor/scripts/doctor.mjs ~/my-world
 ✅ mv-setup        node 22.11.0, npm 10.9.0
-✅ mv-worldview    책방 골목 · 구역 3개
-✅ mv-concept      선택: 노을 책방
+✅ mv-worldview    서울 산책 · 구역 3개
+✅ mv-concept      선택: 서울의 노을
 ✅ mv-build        npm 패키지 설치됨
 ⬜ mv-multiplayer  .env 에 VITE_SUPABASE_URL/KEY 없음 (없어도 혼자 플레이는 됨)
-⬜ mv-deploy       wrangler 이름 book-alley, 아직 배포 기록 없음
+⬜ mv-deploy       wrangler 이름 seoul-walk, 아직 배포 기록 없음
 
 👉 다음 단계: /mv-multiplayer
 ```
 
 ## 만들어지는 월드 (템플릿 엔진)
 
-- 구역마다 바닥·벽·소품(`tree bench lamp sign box rock flowers fountain kiosk`)과 빛나는 포털
+- 구역마다 바닥 무늬·물·그림자·도시 불빛과 빛나는 포털
+- 소품 30여 종 — 벚나무·한옥·가게부터 **광화문·세종대왕/이순신 동상·롯데월드타워·세빛섬·반포대교 무지개분수·남산타워** 같은 서울 랜드마크까지 (예시 월드 "서울 산책")
+- 실제 장소를 원하면 Claude 가 사진을 찾아보고 특징을 맞춰 새 소품을 만듦
 - 동글동글 아바타 · 이모트 · 닉네임 · 이름표 (월드 색)
 - WASD · 달리기 · 점프 · 드래그 시점 · 바닥 탭 이동 · 휴대폰 조이스틱
 - `world/world.json`(구역) + `world/concept.json`(색·빛) 두 파일만 바꾸면 다른 세계

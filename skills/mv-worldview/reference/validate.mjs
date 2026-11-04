@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 const w = JSON.parse(readFileSync(process.argv[2] || 'world/world.json', 'utf8'));
 const errs = [], warns = [];
-const KINDS = ['tree', 'bench', 'lamp', 'sign', 'box', 'rock', 'flowers', 'fountain', 'kiosk'];
+const KINDS = ['tree', 'bench', 'lamp', 'sign', 'box', 'rock', 'flowers', 'fountain', 'kiosk', 'shop', 'shelf', 'books', 'table', 'lantern', 'planter', 'crate', 'cat', 'stage', 'chair', 'rug', 'stringlights', 'cherry', 'pine', 'hanok', 'gate', 'statue', 'tower', 'bridge', 'dome', 'swanboat', 'mat', 'store', 'flag', 'sevit', 'jets', 'mountain'];
 if (!/^[a-z0-9-]{2,40}$/.test(w.slug || '')) errs.push('slug 는 영문 소문자·숫자·- 2~40자');
 if (!w.title) errs.push('title 이 없어요');
 const ids = new Set();
@@ -13,7 +13,7 @@ for (const z of w.zones || []) {
   const inside = (x, zz, m = 0.5) => Math.abs(x) <= W / 2 - m && Math.abs(zz) <= D / 2 - m;
   for (const p of z.props || []) {
     if (!KINDS.includes(p.kind)) warns.push(`${z.id}: 템플릿에 없는 소품 '${p.kind}' → box 로 그려져요 (mv-build 에서 추가 가능)`);
-    if (!inside(p.x, p.z)) errs.push(`${z.id}: 소품 ${p.kind} (${p.x}, ${p.z}) 가 구역 밖`);
+    if (!p.bg && !['tower', 'bridge', 'mountain', 'hanok'].includes(p.kind) && !inside(p.x, p.z)) errs.push(`${z.id}: 소품 ${p.kind} (${p.x}, ${p.z}) 가 구역 밖`);
     if (Math.hypot(p.x - (z.spawn?.[0] ?? 0), p.z - (z.spawn?.[1] ?? 4)) < 1.5) warns.push(`${z.id}: 시작 지점 근처에 ${p.kind} — 처음 위치가 밀려날 수 있어요`);
   }
   for (const pt of z.portals || []) {

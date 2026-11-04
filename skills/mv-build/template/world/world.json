@@ -1,39 +1,543 @@
 {
-  "slug": "starlight",
-  "title": "별빛 정원",
-  "tagline": "밤마다 별이 내려앉는 작은 정원 마을",
-  "spawn": "plaza",
-  "zones": [
+ "slug": "seoul-walk",
+ "title": "서울 산책",
+ "tagline": "노을 지는 서울, 좋아하는 곳에서 만나요",
+ "spawn": "hangang",
+ "zones": [
+  {
+   "id": "hangang",
+   "name": "한강공원",
+   "desc": "세빛섬이 보이는 강변 잔디밭",
+   "shape": "open",
+   "size": [
+    72,
+    52
+   ],
+   "pattern": "grass",
+   "floor": "#9cc489",
+   "areas": [
     {
-      "id": "plaza", "name": "중앙 광장", "desc": "모두가 처음 도착하는 곳", "shape": "open", "size": [44, 44],
-      "props": [
-        { "kind": "fountain", "x": 0, "z": 0 },
-        { "kind": "sign", "x": 0, "z": -8, "text": "별빛 정원에 오신 걸 환영해요" },
-        { "kind": "tree", "x": -12, "z": -10 }, { "kind": "tree", "x": 12, "z": -11 }, { "kind": "tree", "x": -14, "z": 9 }, { "kind": "tree", "x": 13, "z": 12 },
-        { "kind": "bench", "x": -6, "z": 5, "rot": 30 }, { "kind": "bench", "x": 6, "z": 5, "rot": -30 },
-        { "kind": "lamp", "x": -5, "z": -4 }, { "kind": "lamp", "x": 5, "z": -4 },
-        { "kind": "flowers", "x": -9, "z": 2 }, { "kind": "flowers", "x": 9, "z": 2 },
-        { "kind": "kiosk", "x": 15, "z": -2, "rot": -90, "text": "별사탕 가게" }
-      ],
-      "portals": [ { "to": "library", "x": 0, "z": -20, "label": "달빛 도서관" }, { "to": "lake", "x": -20, "z": 0, "label": "호수" } ]
-    },
-    {
-      "id": "library", "name": "달빛 도서관", "desc": "조용히 이야기 나누는 곳", "shape": "room", "size": [26, 22], "height": 6,
-      "floor": "#d9c9b0", "wall": "#f1e7d6",
-      "props": [
-        { "kind": "box", "x": -9, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" }, { "kind": "box", "x": 0, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" },
-        { "kind": "box", "x": 9, "z": -6, "size": [6, 3.2, 1], "color": "#8b6a4e" },
-        { "kind": "bench", "x": -4, "z": 3 }, { "kind": "bench", "x": 4, "z": 3 }, { "kind": "lamp", "x": -7, "z": 6 }
-      ],
-      "portals": [ { "to": "plaza", "x": 0, "z": 11, "label": "중앙 광장" } ]
-    },
-    {
-      "id": "lake", "name": "별빛 호수", "desc": "별이 비치는 물가", "shape": "open", "size": [36, 30], "floor": "#a9d6b5",
-      "props": [
-        { "kind": "box", "x": 0, "z": -6, "size": [16, 0.1, 9], "color": "#6fb6e8" },
-        { "kind": "rock", "x": -9, "z": -3, "scale": 1.2 }, { "kind": "rock", "x": 8, "z": -9 }, { "kind": "tree", "x": 11, "z": 6 }, { "kind": "bench", "x": -4, "z": 7 }
-      ],
-      "portals": [ { "to": "plaza", "x": 17, "z": 6, "label": "중앙 광장" } ]
+     "x": 0,
+     "z": -6.5,
+     "w": 72,
+     "d": 4,
+     "pattern": "tile",
+     "color": "#d9d2c3"
     }
-  ]
+   ],
+   "water": [
+    {
+     "x": 0,
+     "z": -70,
+     "w": 320,
+     "d": 122
+    }
+   ],
+   "props": [
+    {
+     "kind": "sevit",
+     "variant": "ga",
+     "x": -14,
+     "z": -19
+    },
+    {
+     "kind": "sevit",
+     "variant": "cha",
+     "x": 3,
+     "z": -19.5,
+     "seed": 0.6
+    },
+    {
+     "kind": "sevit",
+     "variant": "sol",
+     "x": 15,
+     "z": -18.5,
+     "seed": 1.1
+    },
+    {
+     "kind": "sevit",
+     "variant": "ye",
+     "x": -29,
+     "z": -18
+    },
+    {
+     "kind": "bridge",
+     "x": 44,
+     "z": -70,
+     "rot": 90,
+     "len": 124
+    },
+    {
+     "kind": "mountain",
+     "x": -20,
+     "z": -215,
+     "r": 55,
+     "h": 30,
+     "tower": true,
+     "seed": 2
+    },
+    {
+     "kind": "sign",
+     "x": -23,
+     "z": 1,
+     "text": "한강공원",
+     "rot": 25
+    },
+    {
+     "kind": "mat",
+     "x": -10,
+     "z": 6,
+     "color": "#e75a5a"
+    },
+    {
+     "kind": "mat",
+     "x": -3,
+     "z": 10,
+     "color": "#3f6fb5",
+     "size": [
+      2.6,
+      2
+     ]
+    },
+    {
+     "kind": "mat",
+     "x": 8,
+     "z": 7,
+     "color": "#e0b04a"
+    },
+    {
+     "kind": "store",
+     "x": 24,
+     "z": 12,
+     "rot": 200,
+     "text": "한강 편의점"
+    },
+    {
+     "kind": "cherry",
+     "x": -28,
+     "z": 4
+    },
+    {
+     "kind": "cherry",
+     "x": -20,
+     "z": 18,
+     "scale": 1.2
+    },
+    {
+     "kind": "pine",
+     "x": 30,
+     "z": -1
+    },
+    {
+     "kind": "cherry",
+     "x": 14,
+     "z": 20
+    },
+    {
+     "kind": "pine",
+     "x": -32,
+     "z": 20
+    },
+    {
+     "kind": "lantern",
+     "x": -18,
+     "z": -4
+    },
+    {
+     "kind": "lantern",
+     "x": 0,
+     "z": -4
+    },
+    {
+     "kind": "lantern",
+     "x": 18,
+     "z": -4
+    },
+    {
+     "kind": "bench",
+     "x": -24,
+     "z": -3,
+     "rot": 0
+    },
+    {
+     "kind": "bench",
+     "x": 11,
+     "z": -3
+    },
+    {
+     "kind": "cat",
+     "x": 5,
+     "z": 3,
+     "rot": 40
+    }
+   ],
+   "portals": [
+    {
+     "to": "lake",
+     "x": 33,
+     "z": 4,
+     "label": "석촌호수"
+    },
+    {
+     "to": "plaza",
+     "x": -33,
+     "z": 8,
+     "label": "광화문광장"
+    }
+   ],
+   "fog": [
+    70,
+    420
+   ]
+  },
+  {
+   "id": "lake",
+   "name": "석촌호수",
+   "desc": "벚꽃 길 따라 호수 한 바퀴",
+   "shape": "open",
+   "size": [
+    64,
+    60
+   ],
+   "pattern": "grass",
+   "floor": "#a7c98f",
+   "areas": [
+    {
+     "x": 0,
+     "z": -4,
+     "w": 46,
+     "d": 44,
+     "pattern": "cobble",
+     "color": "#d8cdb8"
+    }
+   ],
+   "water": [
+    {
+     "x": 0,
+     "z": -4,
+     "r": 17
+    }
+   ],
+   "props": [
+    {
+     "kind": "tower",
+     "x": 10,
+     "z": -62,
+     "h": 120,
+     "r": 6,
+     "mall": true
+    },
+    {
+     "kind": "swanboat",
+     "x": -6,
+     "z": -8,
+     "rot": 30
+    },
+    {
+     "kind": "swanboat",
+     "x": 6,
+     "z": 2,
+     "rot": 200,
+     "color": "#ffe9f0"
+    },
+    {
+     "kind": "swanboat",
+     "x": 4,
+     "z": -14,
+     "rot": 120
+    },
+    {
+     "kind": "cherry",
+     "x": -20,
+     "z": -12
+    },
+    {
+     "kind": "cherry",
+     "x": -21,
+     "z": 2
+    },
+    {
+     "kind": "cherry",
+     "x": -15,
+     "z": 14
+    },
+    {
+     "kind": "cherry",
+     "x": 15,
+     "z": 14
+    },
+    {
+     "kind": "cherry",
+     "x": 21,
+     "z": 0
+    },
+    {
+     "kind": "cherry",
+     "x": 19,
+     "z": -14
+    },
+    {
+     "kind": "cherry",
+     "x": -10,
+     "z": -23
+    },
+    {
+     "kind": "cherry",
+     "x": 6,
+     "z": -23
+    },
+    {
+     "kind": "stringlights",
+     "x": 0,
+     "z": 0,
+     "from": [
+      -21,
+      2
+     ],
+     "to": [
+      -15,
+      14
+     ]
+    },
+    {
+     "kind": "stringlights",
+     "x": 0,
+     "z": 0,
+     "from": [
+      15,
+      14
+     ],
+     "to": [
+      21,
+      0
+     ]
+    },
+    {
+     "kind": "bench",
+     "x": -8,
+     "z": 17,
+     "rot": 180
+    },
+    {
+     "kind": "bench",
+     "x": 8,
+     "z": 17,
+     "rot": 180
+    },
+    {
+     "kind": "lantern",
+     "x": -19,
+     "z": -5
+    },
+    {
+     "kind": "lantern",
+     "x": 19,
+     "z": 7
+    },
+    {
+     "kind": "sign",
+     "x": -9,
+     "z": 19,
+     "text": "석촌호수",
+     "rot": 30
+    }
+   ],
+   "portals": [
+    {
+     "to": "hangang",
+     "x": -29,
+     "z": 18,
+     "label": "한강공원"
+    },
+    {
+     "to": "plaza",
+     "x": 29,
+     "z": 18,
+     "label": "광화문광장"
+    }
+   ],
+   "spawn": [
+    0,
+    22.5
+   ],
+   "fog": [
+    60,
+    340
+   ]
+  },
+  {
+   "id": "plaza",
+   "name": "광화문광장",
+   "desc": "경복궁을 마주한 광장",
+   "shape": "open",
+   "size": [
+    56,
+    84
+   ],
+   "pattern": "tile",
+   "floor": "#d8d2c6",
+   "areas": [
+    {
+     "x": -21,
+     "z": 6,
+     "w": 8,
+     "d": 60,
+     "pattern": "grass",
+     "color": "#9cc489"
+    },
+    {
+     "x": 21,
+     "z": 6,
+     "w": 8,
+     "d": 60,
+     "pattern": "grass",
+     "color": "#9cc489"
+    }
+   ],
+   "water": [],
+   "props": [
+    {
+     "kind": "mountain",
+     "x": 0,
+     "z": -150,
+     "r": 60,
+     "h": 40,
+     "wide": 1.9,
+     "seed": 4,
+     "color": "#476544"
+    },
+    {
+     "kind": "hanok",
+     "x": 0,
+     "z": -56,
+     "w": 16,
+     "d": 8
+    },
+    {
+     "kind": "gate",
+     "x": 0,
+     "z": -32,
+     "text": "光化門",
+     "walls": 12,
+     "wolldae": 12
+    },
+    {
+     "kind": "statue",
+     "x": 0,
+     "z": -2,
+     "text": "세종대왕"
+    },
+    {
+     "kind": "statue",
+     "x": 0,
+     "z": 14,
+     "pose": "stand",
+     "text": "충무공 이순신"
+    },
+    {
+     "kind": "jets",
+     "x": 0,
+     "z": 24,
+     "w": 16,
+     "d": 5
+    },
+    {
+     "kind": "flag",
+     "x": -9,
+     "z": -12,
+     "color": "#c0392b"
+    },
+    {
+     "kind": "flag",
+     "x": 9,
+     "z": -12,
+     "color": "#2f6fd8"
+    },
+    {
+     "kind": "pine",
+     "x": -21,
+     "z": -10
+    },
+    {
+     "kind": "pine",
+     "x": -21,
+     "z": 2
+    },
+    {
+     "kind": "pine",
+     "x": -21,
+     "z": 14
+    },
+    {
+     "kind": "pine",
+     "x": -21,
+     "z": 26
+    },
+    {
+     "kind": "pine",
+     "x": 21,
+     "z": -10
+    },
+    {
+     "kind": "pine",
+     "x": 21,
+     "z": 2
+    },
+    {
+     "kind": "pine",
+     "x": 21,
+     "z": 14
+    },
+    {
+     "kind": "pine",
+     "x": 21,
+     "z": 26
+    },
+    {
+     "kind": "lantern",
+     "x": -12,
+     "z": 10
+    },
+    {
+     "kind": "lantern",
+     "x": 12,
+     "z": 10
+    },
+    {
+     "kind": "bench",
+     "x": -12,
+     "z": 30,
+     "rot": 180
+    },
+    {
+     "kind": "bench",
+     "x": 12,
+     "z": 30,
+     "rot": 180
+    }
+   ],
+   "portals": [
+    {
+     "to": "hangang",
+     "x": -25,
+     "z": 38,
+     "label": "한강공원"
+    },
+    {
+     "to": "lake",
+     "x": 25,
+     "z": 38,
+     "label": "석촌호수"
+    }
+   ],
+   "spawn": [
+    -7,
+    34
+   ],
+   "fog": [
+    70,
+    360
+   ]
+  }
+ ]
 }

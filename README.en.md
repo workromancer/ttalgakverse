@@ -6,7 +6,7 @@
 
 ---
 
-Start with one sentence: *"I'd like people to meet in a tiny alley of neighborhood bookshops."*
+Start with one sentence: *"A Seoul walk metaverse — Hangang Park, Seokchon Lake and Gwanghwamun Square."*
 
 While Claude asks you a few questions, **a draft of your world is drawn live in your browser**, then **three 3D mood/colour concepts** appear. Pick one and it becomes a world you can walk around, invite friends into, and publish at `https://<name>.workers.dev`.
 
@@ -16,6 +16,8 @@ While Claude asks you a few questions, **a draft of your world is drawn live in 
 - 🚀 **Free to publish** — Cloudflare Workers static assets, optional custom domain
 - 🔐 **Always-on secret scanning** — keys, tokens and `.env` files are caught and filtered before every commit, push and deploy
 - 🧭 **Resume anywhere** — a doctor skill finds where you left off and what's next
+
+> The bundled example world "Seoul Walk" includes Gwanghwamun, the King Sejong & Admiral Yi statues, Lotte World Tower, Some Sevit islands, Banpo Bridge's rainbow fountain and N Seoul Tower. For real places, Claude looks up photos and matches their silhouettes.
 
 > Distilled from building [Metrobus](https://metrobus.workromancer.ai), a Seoul Subway Line 2 metaverse.
 

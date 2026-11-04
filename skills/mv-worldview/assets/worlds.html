@@ -40,7 +40,7 @@
 <div class="grid" id="grid"></div>
 <script>
 const COLORS = ['#6c5ce7', '#00b894', '#fd79a8', '#fdcb6e', '#0984e3', '#e17055', '#00cec9', '#a29bfe'];
-const ICON = { tree: '🌳', bench: '🪑', lamp: '💡', sign: '🪧', box: '📦', rock: '🪨', flowers: '🌸', fountain: '⛲', kiosk: '🏪' };
+const ICON = { tree: '🌳', bench: '🪑', lamp: '💡', sign: '🪧', box: '📦', rock: '🪨', flowers: '🌸', fountain: '⛲', kiosk: '🏪', shop: '🏬', store: '🏪', cherry: '🌸', pine: '🌲', hanok: '🏯', gate: '⛩️', statue: '🗿', tower: '🗼', bridge: '🌉', dome: '🫧', sevit: '🫧', swanboat: '🦢', mountain: '⛰️', jets: '⛲', lantern: '🏮', flag: '🚩', mat: '🧺', cat: '🐈', stage: '🎤', table: '☕', stringlights: '✨' };
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 async function load(f, d) { try { const r = await fetch(f, { cache: 'no-store' }); return r.ok ? await r.json() : d; } catch { return d; } }
 // 구역 지도: 구역 크기 비율대로 사각형, 포털은 선으로 연결

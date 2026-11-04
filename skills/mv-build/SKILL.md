@@ -11,7 +11,8 @@ description: 딸각verse 4단계 — 템플릿 엔진(three.js + Vite)을 프로
 
 ```
 index.html           HUD(구역 카드·이모트·닉네임)·조이스틱·로딩 화면
-src/main.js          엔진: 구역 그리기·소품·포털·이동·카메라·멀티플레이 연결
+src/main.js          엔진: 구역 그리기(바닥 무늬·물·도시 불빛·그림자)·포털·이동·카메라·멀티플레이 연결
+src/props.js         소품 라이브러리 30여 종 (골목·자연·서울 랜드마크). 컨셉 보드도 이 파일로 그림
 src/character.js     동글동글 아바타 (이모트·액세서리·이름표)
 src/net.js           Supabase Realtime 멀티플레이 (설정 없으면 혼자 모드)
 world/world.json     세계관·구역 (mv-worldview 가 씀)
@@ -33,7 +34,9 @@ tools/secret-scan.mjs  비밀 정보 검사기 (.githooks 의 pre-commit·pre-pu
 4. `npm run dev` (기본 http://localhost:5173, 같은 와이파이 휴대폰은 Network 주소).
 5. **확인** — 가능하면 브라우저 도구로 첫 화면 스크린샷을 찍어 보여 주고, 포털로 다른 구역에 들어가지는지까지 본다. 콘솔 오류가 있으면 고친다. 도구가 없으면 사용자에게 열어 보라고 하고 체크리스트(구역 이름 보임 / 걸어짐 / 포털 이동 / 휴대폰 조이스틱)를 준다.
 6. **다듬기 (요청이 있을 때)** — 자주 하는 것:
-   - 새 소품: `main.js` 의 `buildProp` switch 에 `case '이름':` 추가 (THREE 기본 도형 조합 + `solid` 에 부딪힘 영역). world.json 에서 그 `kind` 를 쓰면 됨.
+   - 새 소품: `src/props.js` 의 `makeProps` 반환 객체에 `이름: (p) => ({ group, solid })` 추가 (THREE 기본 도형 조합 + `solid` 에 부딪힘 영역 `{ r }`·`{ box:[반폭x,반폭z], dx, dz }`). world.json 에서 그 `kind` 를 쓰고, `mv-worldview/reference/validate.mjs` 의 KINDS 에도 추가.
+   - **실제 건축물·명소**는 먼저 사진을 찾아본다 (예: 위키백과 요약 API 대표 사진을 받아 Read 로 보기). 누가 봐도 알아볼 특징 3~5개를 적고(실루엣·비율·색·재질·주변 배치) 그대로 맞춘다. 예: 광화문 = 흰 화강암 석축 + 홍예문 3칸 + 2층 우진각 기와지붕 + 검은 현판 금빛 글씨 + 뒤로 북악산. `props.js` 의 `giwa`(기와지붕)·`storey`(기둥+단청)·`stoneMat`·`plaqueTex`·`flow`(흐르는 물) 도우미를 재사용.
+   - 다 만들면 브라우저로 여러 각도 스크린샷을 찍어 사진과 비교하고 고친다.
    - 구역 모양: `buildZone` (바닥·벽). 계단·다층은 이 템플릿 범위를 넘으니 "고급 확장"으로 따로 설계.
    - 상호작용: 소품에 `text` 를 두고 가까이 가면 버튼을 띄우는 식 (포털 감지 코드 참고).
    - 배경음·효과음: `public/` 에 파일을 두고 `new Audio()` (첫 터치 뒤에 재생).

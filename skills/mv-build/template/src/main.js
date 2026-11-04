@@ -8,6 +8,7 @@ import world from '../world/world.json';     // 세계관·구역 (mv-worldview)
 import concept from '../world/concept.json'; // 색·분위기 (mv-concept)
 import { Character, setTagColor } from './character.js';
 import { createNet } from './net.js';
+import { makeProps, floorTexture, rugTexture, checkTexture } from './props.js';
 
 const $ = (id) => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -23,14 +24,18 @@ window.loader?.set(0.3, '세계를 짓고 있어요');
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(2, devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 부드러운 그림자
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 $('app').appendChild(renderer.domElement);
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 800);
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1200);
 function fit() { camera.aspect = innerWidth / innerHeight; camera.fov = camera.aspect < 1 ? 75 : 60; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); }
 addEventListener('resize', fit); fit();
 scene.add(new THREE.HemisphereLight(C(concept.light?.sky || '#ffffff'), C(concept.light?.ground || '#888888'), concept.light?.ambient ?? 1.4));
 const sun = new THREE.DirectionalLight(C(concept.light?.sun || '#ffffff'), concept.light?.intensity ?? 1.2);
-sun.position.set(30, 60, 20); scene.add(sun);
+sun.position.set(30, 60, 20); scene.add(sun, sun.target);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 160 });
 
 // 하늘: 위·아래 두 색 그라데이션
 function skyTexture(top, bottom) {
@@ -56,9 +61,9 @@ function textSprite(text, { bg = 'rgba(0,0,0,.55)', fg = '#fff', h = 0.5 } = {})
   s.scale.set((w / 72) * h, h, 1); s.renderOrder = 9; return s;
 }
 
-function signTexture(text) {
+function signTexture(text, bg = P.primary) {
   const c = document.createElement('canvas'); c.width = 720; c.height = 220; const g = c.getContext('2d');
-  g.fillStyle = P.primary; g.fillRect(0, 0, 720, 220); g.fillStyle = 'rgba(255,255,255,.15)'; g.fillRect(14, 14, 692, 192);
+  g.fillStyle = bg; g.beginPath(); g.roundRect(0, 0, 720, 220, 40); g.fill(); g.fillStyle = 'rgba(255,255,255,.15)'; g.beginPath(); g.roundRect(14, 14, 692, 192, 30); g.fill();
   let fs = 64; g.font = `800 ${fs}px "Pretendard","Apple SD Gothic Neo",sans-serif`;
   while (g.measureText(text).width > 660 && fs > 24) { fs -= 4; g.font = `800 ${fs}px "Pretendard","Apple SD Gothic Neo",sans-serif`; }
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 360, 114);
@@ -71,9 +76,15 @@ function freeSpot(x, z) {
 }
 
 // ---------- 구역 만들기 ----------
-// 소품: tree · bench · lamp · sign · box · rock · flowers · fountain · kiosk  (새 종류는 여기에 추가)
+// 소품: tree · bench · lamp · sign · box · rock · flowers · fountain · kiosk  + props.js (shop shelf books table lantern planter crate cat stage chair rug stringlights)
+const EXTRA = makeProps({ P, concept, lam, glow, tex: { sign: signTexture, rug: rugTexture, check: checkTexture } });
 function buildProp(p, zone) {
   const g = new THREE.Group(); g.position.set(p.x, 0, p.z); g.rotation.y = ((p.rot || 0) * Math.PI) / 180;
+  if (EXTRA[p.kind]) { // shop shelf books table lantern planter crate cat stage chair rug stringlights
+    const r = EXTRA[p.kind](p); g.add(r.group);
+    g.traverse((o) => { if (o.isMesh && o.castShadow === false && !o.material.isMeshBasicMaterial) o.castShadow = true; });
+    return { group: g, solid: r.solid.map((sd) => ({ ...sd, ...rotOff(sd, p, g.rotation.y) })) };
+  }
   const col = p.color || P.accent, solid = []; // solid: 부딪히는 반지름(원) 또는 상자
   switch (p.kind) {
     case 'tree': {
@@ -123,18 +134,54 @@ function buildProp(p, zone) {
       const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(col)); b.position.y = h / 2; g.add(b); solid.push({ box: [w / 2, d / 2] });
     }
   }
+  g.traverse((o) => { if (o.isMesh && !o.material.isMeshBasicMaterial) { o.castShadow = true; o.receiveShadow = true; } });
   return { group: g, solid: solid.map((s) => ({ ...s, x: p.x, z: p.z, rot: g.rotation.y })) };
 }
+// 소품 안에서 떨어진 부딪힘 영역(dx, dz)을 회전 반영해 월드 좌표로
+function rotOff(sd, p, rot) {
+  const dx = sd.dx || 0, dz = sd.dz || 0, c = Math.cos(rot), s = Math.sin(rot);
+  return { x: p.x + dx * c + dz * s, z: p.z - dx * s + dz * c, rot };
+}
 
-let zone = null, zoneGroup = null, solids = [], portals = [];
+let zone = null, zoneGroup = null, solids = [], portals = [], waters = [];
+// 배경 건물 창문 무늬
+const winTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 64, 64);
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 4; x++) if (Math.random() < 0.45) { g.fillStyle = '#fff'; g.fillRect(x * 16 + 4, y * 8 + 2, 8, 4); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 4); return t; })();
 function buildZone(z) {
   if (zoneGroup) scene.remove(zoneGroup);
   zoneGroup = new THREE.Group(); scene.add(zoneGroup);
   solids = []; portals = [];
   const [W, D] = z.size || [40, 40];
   // 바닥 (가장자리 테두리 + 바둑판 무늬 조금)
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), lam(z.floor || P.floor)); floor.rotation.x = -Math.PI / 2; floor.name = 'floor';
+  // 바닥: pattern = cobble(돌길)·wood(마루)·tile·grass·plain. areas 로 구역 안 일부를 다른 무늬로 (예: 잔디 위 산책로)
+  const fmat = (pat, color, w, d) => { if (!pat || pat === 'plain') return lam(color); const t = floorTexture(pat, color); t.repeat.set(w / 4, d / 4); return new THREE.MeshLambertMaterial({ map: t }); };
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), fmat(z.pattern, z.floor || P.floor, W, D)); floor.rotation.x = -Math.PI / 2; floor.name = 'floor'; floor.receiveShadow = true;
   zoneGroup.add(floor);
+  for (const a of z.areas || []) { // { x, z, w, d, pattern, color }
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.d), fmat(a.pattern, a.color || P.floor, a.w, a.d)); m.rotation.x = -Math.PI / 2; m.position.set(a.x, 0.006, a.z); m.receiveShadow = true; zoneGroup.add(m);
+  }
+  // 물: { x, z, w, d } 또는 { x, z, r } — 들어갈 수 없음, 잔잔히 반짝임
+  waters = (z.water || []).map((wv) => {
+    const geo = wv.r ? new THREE.CircleGeometry(wv.r, 48) : new THREE.PlaneGeometry(wv.w, wv.d, 1, 1);
+    const m = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: C(wv.color || concept.props?.water || '#6fb6e8'), specular: '#ffffff', shininess: 120, transparent: true, opacity: 0.9 }));
+    m.rotation.x = -Math.PI / 2; m.position.set(wv.x, 0.09, wv.z); m.receiveShadow = true; zoneGroup.add(m);
+    if (!wv.r) { const bank = new THREE.Mesh(new THREE.BoxGeometry(wv.w + 0.6, 0.12, wv.d + 0.6), lam('#bdb6a8')); bank.position.set(wv.x, 0.0, wv.z); zoneGroup.add(bank); }
+    return { ...wv, mesh: m };
+  });
+  // 야외 구역 둘레에 도시 실루엣 (불 켜진 창), skyline: false 로 끔
+  if (z.shape !== 'room' && z.skyline !== false) {
+    const R = Math.max(W, D) * 0.9 + 30, rnd = (k) => ((Math.sin(k * 91.7) + 1) / 2);
+    for (let i = 0; i < 46; i++) {
+      const a = (i / 46) * Math.PI * 2, h = 10 + rnd(i) * 28, w = 8 + rnd(i + 3) * 10;
+      let d = R + rnd(i + 7) * 20, bx, bz;
+      const wet = () => waters.some((wv) => !wv.r && Math.abs(bx - wv.x) < wv.w / 2 + w && Math.abs(bz - wv.z) < wv.d / 2 + w);
+      for (let k = 0; k < 40; k++) { bx = Math.cos(a) * d; bz = Math.sin(a) * d; if (!wet()) break; d += 8; } // 강 건너편으로 밀어냄
+      if (wet()) continue;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), new THREE.MeshLambertMaterial({ color: C(P.fog || P.sky[1]).lerp(C(P.sky[0]), 0.4), emissive: C('#ffe2a8'), emissiveMap: winTex, emissiveIntensity: 0.3 }));
+      b.position.set(bx, h / 2 - 0.5, bz); zoneGroup.add(b);
+    }
+  }
   const edge = new THREE.Mesh(new THREE.BoxGeometry(W + 1, 0.3, D + 1), lam(z.edge || P.wall)); edge.position.y = -0.16; zoneGroup.add(edge);
   if (z.shape === 'room') { // 벽 (포털 자리는 뚫림)
     const H = z.height || 5, wm = lam(z.wall || P.wall);
@@ -166,6 +213,7 @@ function buildZone(z) {
     portals.push({ ...pt, face, toZone: to });
   }
   zone = z;
+  scene.fog.near = z.fog?.[0] ?? 50; scene.fog.far = z.fog?.[1] ?? Math.max(180, Math.max(W, D) * 2.2 + 140); // 큰 구역·배경 타워가 안개에 안 묻히게
   $('zone').textContent = z.name;
   $('zone-sub').textContent = z.desc || world.tagline || '';
   net.setZone(`${world.slug}:${z.id}`);
@@ -178,6 +226,7 @@ const R = 0.45;
 function blocked(x, z) {
   const [W, D] = zone.size || [40, 40];
   if (Math.abs(x) > W / 2 - R || Math.abs(z) > D / 2 - R) return true;
+  for (const wv of waters) { if (wv.r ? Math.hypot(x - wv.x, z - wv.z) < wv.r + 0.2 : Math.abs(x - wv.x) < wv.w / 2 + 0.2 && Math.abs(z - wv.z) < wv.d / 2 + 0.2) return true; }
   for (const s of solids) {
     if (s.r) { if (Math.hypot(x - s.x, z - s.z) < s.r + R) return true; continue; }
     const dx = x - s.x, dz = z - s.z, c = Math.cos(-s.rot), sn = Math.sin(-s.rot);
@@ -329,8 +378,9 @@ function frame() {
   const cp = Math.cos(cam.pitch);
   let cx = player.x + Math.sin(cam.yaw) * cp * cam.dist, cz = player.z + Math.cos(cam.yaw) * cp * cam.dist, cy = 1.2 + player.jumpH * 0.8 + Math.sin(cam.pitch) * cam.dist;
   if (zone.shape === 'room') { const [W, D] = zone.size; cx = clamp(cx, -W / 2 + 0.6, W / 2 - 0.6); cz = clamp(cz, -D / 2 + 0.6, D / 2 - 0.6); cy = Math.min(cy, (zone.height || 5) - 0.3); } // 방 안에서는 벽 밖으로 안 나감
-  camera.position.set(cx, cy, cz);
+  camera.position.set(cx, Math.max(cy, 0.35), cz); // 땅 밑으로 안 내려감 (올려다보기)
   camera.lookAt(player.x, 1 + player.jumpH * 0.8, player.z);
+  sun.position.set(player.x + 30, 60, player.z + 20); sun.target.position.set(player.x, 0, player.z); // 그림자가 늘 내 주변에
   sendState(); updateRemotes(dt);
   if (toastT > 0 && (toastT -= dt) <= 0) $('toast').classList.remove('on');
   renderer.render(scene, camera);
