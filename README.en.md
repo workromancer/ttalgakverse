@@ -1,6 +1,6 @@
-<p align="center"><img src=".claude-plugin/icon.png" width="120" alt="ttalgakverse" /></p>
+<p align="center"><img src="assets/icon-1024.png" width="140" alt="ttalgakverse" /></p>
+<p align="center"><img src="assets/wordmark.png" width="520" alt="ttalgakverse" /></p>
 
-<h1 align="center">딸각verse · ttalgakverse</h1>
 <p align="center"><b>A few words and a few clicks (<i>ttalgak!</i>) — your own metaverse.</b><br/>Design the world together through a live interview, walk it with friends without a server, and publish it with one link.</p>
 <p align="center"><a href="README.md">한국어</a> · English</p>
 

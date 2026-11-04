@@ -1,6 +1,6 @@
-<p align="center"><img src=".claude-plugin/icon.png" width="120" alt="딸각verse" /></p>
+<p align="center"><img src="assets/icon-1024.png" width="140" alt="딸각verse" /></p>
+<p align="center"><img src="assets/wordmark.png" width="520" alt="딸각verse" /></p>
 
-<h1 align="center">딸각verse</h1>
 <p align="center"><b>말 몇 마디, 딸각 몇 번이면 나만의 메타버스.</b><br/>인터뷰하며 세계를 함께 그리고, 서버 없이 친구들과 걷고, 링크 하나로 공개까지.</p>
 <p align="center">한국어 · <a href="README.en.md">English</a></p>
 
