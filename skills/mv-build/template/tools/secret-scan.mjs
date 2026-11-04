@@ -81,6 +81,8 @@ for (const p of listFiles()) {
   txt.split('\n').forEach((line, i) => {
     if (/secret-scan:\s*allow/.test(line)) return;
     for (const r of RULES) {
+      // 압축된(minified) 코드·빌드 결과의 라이브러리 코드는 '비밀번호 같은 값' 규칙이 잘못 걸리기 쉬워 건너뜀 (진짜 키 패턴은 그대로 검사)
+      if (r.id === 'assignment' && (line.length > 300 || mode === 'dir' || /\.min\.|(^|\/)(dist|build)\//.test(p))) continue;
       r.re.lastIndex = 0;
       const ms = r.re.global ? [...line.matchAll(r.re)].map((m) => m[0]) : (line.match(r.re) || []).slice(0, 1);
       for (const m of ms) if (!r.test || r.test(m)) findings.push({ sev: r.sev, file: p, line: i + 1, rule: r.id, why: r.why, sample: m.length > 14 ? `${m.slice(0, 6)}…${m.slice(-4)}` : '***' });
@@ -96,6 +98,9 @@ if (flag('--fix') && mode !== 'dir') {
   const add = files.filter((f) => !cur.split('\n').includes(f) && !cur.split('\n').includes(basename(f)));
   if (add.length) appendFileSync(gi, `${cur.endsWith('\n') || !cur ? '' : '\n'}# secret-scan 이 추가함\n${add.join('\n')}\n`);
   if (files.length) console.error(`🧹 커밋에서 뺀 파일: ${files.join(', ')} (.gitignore 에 추가)`);
+  // 뺀 파일에서 나온 항목은 결과에서 지움 (남은 것만 보여 줌)
+  for (const arr of [high, med, info]) for (let i = arr.length - 1; i >= 0; i--) if (files.includes(arr[i].file)) arr.splice(i, 1);
+  findings.splice(0, findings.length, ...high, ...med, ...info);
 }
 if (flag('--json')) { console.log(JSON.stringify({ mode, high: high.length, medium: med.length, info: info.length, findings })); process.exit(high.length ? 1 : 0); }
 const label = { staged: '커밋할 파일', all: '저장소 전체', dir: `${dirArg} 폴더` }[mode];
