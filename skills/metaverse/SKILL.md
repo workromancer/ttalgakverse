@@ -1,6 +1,6 @@
 ---
 name: metaverse
-description: 딸각verse — 나만의 브라우저 3D 메타버스를 말 몇 마디로 만들어 배포까지 하는 워크플로우의 입구이자 길잡이. "메타버스 만들고 싶어", "이어서 하자", "어디까지 했지", "막혔어", "build me a metaverse", "continue my metaverse" 같은 요청이면 먼저 이 스킬을 쓴다. 진행 상태(.metaverse/state.json)를 읽어 다음 단계 스킬(mv-setup → mv-worldview → mv-concept → mv-build → mv-multiplayer → mv-deploy)로 안내하고, 중간에 혼자 하다 멈춘 프로젝트도 이어서 진행한다.
+description: 딸각verse — 나만의 브라우저 3D 메타버스를 채팅 몇 마디로 만들어 배포까지 하는 워크플로우의 입구이자 길잡이. "메타버스 만들고 싶어", "이어서 하자", "어디까지 했지", "막혔어", "build me a metaverse", "continue my metaverse" 같은 요청이면 먼저 이 스킬을 쓴다. 진행 상태(.metaverse/state.json)를 읽어 다음 단계 스킬(mv-setup → mv-worldview → mv-concept → mv-build → mv-multiplayer → mv-deploy)로 안내하고, 중간에 혼자 하다 멈춘 프로젝트도 이어서 진행한다.
 ---
 
 # 🌏 딸각verse — 길잡이

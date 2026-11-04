@@ -3,7 +3,7 @@
   "owner": {
     "name": "workromancer"
   },
-  "description": "딸각verse: 브라우저 3D 메타버스를 말로 만드는 스킬 묶음 / Build a browser metaverse by talking",
+  "description": "딸각verse: 브라우저 3D 메타버스를 채팅으로 만드는 스킬 묶음 / Build a browser metaverse by chatting",
   "plugins": [
     {
       "name": "ttalgakverse",
