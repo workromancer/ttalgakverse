@@ -11,6 +11,9 @@ description: 딸각verse 5단계 — 서버 없이 Supabase Realtime(Presence·B
 - **server_time()**: 모두 같은 시계를 쓰도록 DB 시각 (열차 시간표처럼 시간에 따라 움직이는 걸 만들 때 필요).
 - 아바타 정보(이름·색)는 브라우저 localStorage, DB 에 개인정보 저장 없음.
 
+
+> 📘 Supabase MCP 연결·옵션은 공식 문서를 따른다: https://supabase.com/docs/guides/ai-tools/mcp (연결이 안 돼 있으면 mv-setup 의 Supabase 단계로)
+
 ## 진행
 
 1. **Supabase MCP 확인** — `mcp__supabase__list_organizations` 가 되면 OK. 안 되면 `mv-setup` 의 안내로 돌아간다.

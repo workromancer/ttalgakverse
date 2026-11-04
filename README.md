@@ -35,7 +35,7 @@ Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신
 | | 이렇게 말하면 | 스킬 | 하는 일 |
 |---|---|---|---|
 | 0 | "메타버스 만들고 싶어" | `metaverse` | 길잡이 — 지금 어디까지 왔는지 보고 다음 단계로 |
-| 1 | "준비됐는지 봐줘" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare(wrangler)** 준비 확인과 설정 안내 |
+| 1 | "준비됐는지 봐줘" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare MCP**·wrangler 준비 — 공식 문서([Supabase](https://supabase.com/docs/guides/ai-tools/mcp) · [Cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)) 기준, 브라우저 버튼만 누르면 됨 |
 | 2 | "세계관 정하자" | `mv-worldview` | 🎙️ 인터뷰 → 🔴 세계관 초안(구역 지도·포털)을 라이브로 → 고르기 |
 | 3 | "분위기 정하자" | `mv-concept` | 🎙️ 분위기 인터뷰 → 🔴 3D 컨셉 시안 3개를 라이브로 → 고르기·섞기 |
 | 4 | "월드 만들어 줘" | `mv-build` | three.js 엔진으로 실제 월드, 로컬 실행 (`npm run dev`) |

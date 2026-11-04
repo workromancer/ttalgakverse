@@ -9,7 +9,7 @@ Cloudflare Workers 의 정적 자산(assets) 배포: 서버 코드 없이 `dist/
 
 ## 진행
 
-1. **로그인 확인** — `npx wrangler whoami`. 안 돼 있으면 사용자에게 `! npx wrangler login` 실행을 부탁한다.
+1. **로그인 확인** — `npx wrangler whoami`. 안 돼 있으면 사용자에게 `! npx wrangler login` 실행을 부탁한다 (브라우저에서 Allow). Cloudflare API MCP(`mcp.cloudflare.com/mcp`, 설정은 mv-setup 참고 — 문서: https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)가 연결돼 있으면 계정·workers.dev 하위 도메인을 MCP 로 확인하고, 없으면 MCP 로 만들어 둔다.
 2. **이름 정하기** — `wrangler.jsonc` 의 `name` 이 주소가 된다: `https://<name>.<계정 하위도메인>.workers.dev`. 기본은 `world.slug`. 영문 소문자·숫자·`-`.
 3. **공유 미리보기 채우기** (`index.html` `<head>`):
    - `<title>`, `<meta name="description">`, `og:title`, `og:description`, `og:image`(1200×630), `og:url`, `twitter:card=summary_large_image`, `theme-color`.
@@ -18,7 +18,7 @@ Cloudflare Workers 의 정적 자산(assets) 배포: 서버 코드 없이 `dist/
    ```bash
    npm run deploy   # = build → dist 비밀 정보 검사 → wrangler deploy
    ```
-   출력 마지막의 `https://….workers.dev` 주소를 받는다. 처음이면 workers.dev 하위 도메인 등록 안내가 나올 수 있다 (대시보드에서 한 번 정하면 끝).
+   출력 마지막의 `https://….workers.dev` 주소를 받는다. 처음이면 workers.dev 하위 도메인 등록 안내가 나올 수 있다 → Cloudflare API MCP 로 만들거나, 대시보드 Workers & Pages 에서 한 번 정하면 끝. 배포 뒤엔 MCP 로 Worker 가 올라갔는지 확인할 수 있다.
 5. **확인** — `curl -I <주소>` 200, 브라우저로 열어 첫 화면·포털·(멀티플레이면) 두 기기 동시 접속. 휴대폰으로도 열어 보라고 QR 이나 링크를 준다.
 6. **(선택) 내 도메인** — Cloudflare 에 등록된 도메인이 있으면 `wrangler.jsonc` 에
    ```jsonc

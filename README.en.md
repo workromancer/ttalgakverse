@@ -37,7 +37,7 @@ You don't need slash commands — **just say it in chat** and Claude picks the r
 | | Just say | Skill | What it does |
 |---|---|---|---|
 | 0 | "I want to build a metaverse" | `metaverse` | Guide — checks progress and routes to the next step |
-| 1 | "Am I ready?" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare (wrangler)** checks and setup help |
+| 1 | "Am I ready?" | `mv-setup` | Node · **Supabase MCP** · **Cloudflare MCP** + wrangler, following the official docs ([Supabase](https://supabase.com/docs/guides/ai-tools/mcp) · [Cloudflare](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)) — just browser clicks |
 | 2 | "Let's design the world" | `mv-worldview` | 🎙️ interview → 🔴 live world drafts (zone map, portals) → pick |
 | 3 | "Let's pick the mood" | `mv-concept` | 🎙️ mood interview → 🔴 three live 3D concepts → pick or mix |
 | 4 | "Build the world" | `mv-build` | Real world on a three.js engine, run locally (`npm run dev`) |
