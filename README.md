@@ -22,6 +22,15 @@ Claude 가 몇 가지를 물어보는 동안, 브라우저 화면에서 **당신
 
 > 서울 지하철 2호선 메타버스 [메트로버스](https://metrobus.workromancer.ai)를 만든 과정을 누구나 쓸 수 있게 정리했습니다.
 
+## 사용 방법 (영상)
+
+| Claude Code 로 만들기 | ChatGPT (Codex) 로 만들기 |
+|---|---|
+| [![Claude Code 로 만들기](https://img.youtube.com/vi/78r-6ocGgb0/maxresdefault.jpg)](https://youtu.be/78r-6ocGgb0) | [![ChatGPT (Codex) 로 만들기](https://img.youtube.com/vi/SA1Y8qC7CoE/maxresdefault.jpg)](https://youtu.be/SA1Y8qC7CoE) |
+| [youtu.be/78r-6ocGgb0](https://youtu.be/78r-6ocGgb0) | [youtu.be/SA1Y8qC7CoE](https://youtu.be/SA1Y8qC7CoE) |
+
+> 썸네일을 누르면 유튜브에서 열려요.
+
 ## 설치
 
 **Claude Code** 와 **Codex** (ChatGPT 앱 포함) 모두에서 쓸 수 있어요.

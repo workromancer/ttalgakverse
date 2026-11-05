@@ -22,6 +22,15 @@ While Claude asks you a few questions, **a draft of your world is drawn live in 
 
 > Distilled from building [Metrobus](https://metrobus.workromancer.ai), a Seoul Subway Line 2 metaverse.
 
+## How to use (video)
+
+| With Claude Code | With ChatGPT (Codex) |
+|---|---|
+| [![With Claude Code](https://img.youtube.com/vi/78r-6ocGgb0/maxresdefault.jpg)](https://youtu.be/78r-6ocGgb0) | [![With ChatGPT (Codex)](https://img.youtube.com/vi/SA1Y8qC7CoE/maxresdefault.jpg)](https://youtu.be/SA1Y8qC7CoE) |
+| [youtu.be/78r-6ocGgb0](https://youtu.be/78r-6ocGgb0) | [youtu.be/SA1Y8qC7CoE](https://youtu.be/SA1Y8qC7CoE) |
+
+> Click a thumbnail to watch on YouTube (Korean).
+
 ## Install
 
 Works in both **Claude Code** and **Codex** (including the ChatGPT app).
