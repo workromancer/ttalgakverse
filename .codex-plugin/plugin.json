@@ -1,0 +1,46 @@
+{
+  "name": "ttalgakverse",
+  "version": "0.2.1",
+  "description": "딸각verse — 채팅 몇 마디로 나만의 브라우저 3D 메타버스를 만들어 배포까지. 인터뷰하며 세계관·컨셉 시안을 라이브로 그려 주고, 서버 없이 Supabase 멀티플레이 + Cloudflare workers.dev 배포. 커밋·push·배포 전 비밀 정보 자동 검사. / Click-and-talk your own browser 3D metaverse: live interview-driven worldbuilding and concept mockups, Supabase multiplayer, Cloudflare deploy, always-on secret scanning.",
+  "author": {
+    "name": "workromancer"
+  },
+  "homepage": "https://github.com/workromancer/ttalgakverse",
+  "repository": "https://github.com/workromancer/ttalgakverse",
+  "license": "MIT",
+  "keywords": [
+    "metaverse",
+    "threejs",
+    "supabase",
+    "cloudflare",
+    "multiplayer",
+    "vibe-coding",
+    "korean"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "딸각verse",
+    "shortDescription": "채팅 몇 마디로 나만의 3D 메타버스",
+    "longDescription": "채팅 몇 마디로 브라우저 3D 메타버스를 만들어 링크로 공개까지. 인터뷰하며 세계관 지도와 3D 디자인 시안을 라이브로 그려 주고, 고르면 걸어 다닐 수 있는 월드가 됩니다. Supabase 멀티플레이로 친구와 같이 접속하고, Cloudflare workers.dev 로 무료 공개. 커밋·배포 전 비밀 정보 자동 검사. / Build your own browser 3D metaverse by chatting: live worldbuilding and concept boards, multiplayer, free deploy, always-on secret scanning.",
+    "developerName": "workromancer",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/workromancer/ttalgakverse",
+    "defaultPrompt": [
+      "메타버스 만들고 싶어",
+      "명화 속으로 들어가 탐험하는 메타버스 만들어 줘",
+      "대영박물관을 투어하는 메타버스 만들어 줘"
+    ],
+    "brandColor": "#7C5CFF",
+    "composerIcon": "./assets/codex-composer.png",
+    "logo": "./assets/codex-logo.png",
+    "screenshots": [
+      "./assets/screenshots/starry-night.png",
+      "./assets/screenshots/great-wave.png",
+      "./assets/screenshots/british-museum.png"
+    ]
+  }
+}
